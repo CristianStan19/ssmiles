@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,9 +24,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.dcm_stellarsmiles.Classes.Customer.Customer;
 import com.example.dcm_stellarsmiles.Dashboard.Dashboard;
 import com.example.dcm_stellarsmiles.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -32,14 +37,20 @@ import com.google.firebase.Firebase;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Register extends AppCompatActivity {
 
-    TextInputEditText etEmail, etPw, et;
+    TextInputEditText etEmail, etPw, etFullName, etPhoneNumber, etBirthDate, etCNP;
+    RadioGroup smokeRadioGroup, drinkRadioGroup;
+    RadioButton smokeYes, smokeNo, drinkYes, drinkNo;
     TextInputLayout tlPw;
     Button btnRegister;
     FirebaseAuth mAuth;
     TextView loginNow;
+    FirebaseFirestore db;
 
     @Override
     public void onStart() {
@@ -64,6 +75,16 @@ public class Register extends AppCompatActivity {
         etPw = findViewById(R.id.etPwLogin);
         loginNow = findViewById(R.id.loginNow);
         btnRegister = findViewById(R.id.btnRegister);
+
+        etBirthDate = findViewById(R.id.etBirthDate);
+        etFullName = findViewById(R.id.etFullName);
+        etPhoneNumber = findViewById(R.id.etPhoneNumber);
+        etCNP = findViewById(R.id.etCNP);
+
+        drinkRadioGroup = findViewById(R.id.drinkerRG);
+        smokeRadioGroup = findViewById(R.id.drinkerRG);
+
+
         tlPw = findViewById(R.id.tlPwLogin);
         Drawable endIconDrawable = tlPw.getEndIconDrawable();
         if (endIconDrawable != null) {
@@ -83,9 +104,18 @@ public class Register extends AppCompatActivity {
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email, password;
+                String email, password, phoneNumber, birthDate, CNP, fullName;
+                boolean isSmoker, isDrinker;
                 email = etEmail.getText().toString();
                 password = etPw.getText().toString();
+                phoneNumber = etPhoneNumber.getText().toString();
+                birthDate = etBirthDate.getText().toString();
+                CNP = etCNP.getText().toString();
+                fullName = etFullName.getText().toString();
+                RadioButton selectedSmokeButton = (RadioButton) findViewById(smokeRadioGroup.getCheckedRadioButtonId());
+                isSmoker = selectedSmokeButton.isChecked();
+                RadioButton selectedDrinkButton = (RadioButton) findViewById(drinkRadioGroup.getCheckedRadioButtonId());
+                isDrinker = selectedDrinkButton.isChecked();
 
                 if(TextUtils.isEmpty(email)){
                     Toast.makeText(getApplicationContext(), "Enter email", Toast.LENGTH_SHORT).show();
@@ -103,6 +133,22 @@ public class Register extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(Register.this, "Account created successfully.",
                                             Toast.LENGTH_SHORT).show();
+                                    db = FirebaseFirestore.getInstance();
+                                    Customer customer = new Customer(fullName, email, phoneNumber, birthDate, CNP, isSmoker, isDrinker);
+                                    CollectionReference customersRef = db.collection("customers");
+                                    customersRef.add(customer)
+                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                @Override
+                                                public void onSuccess(DocumentReference documentReference) {
+                                                    Log.d("TAG", "Customer document added with ID: " + documentReference.getId());
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w("TAG", "Error adding customer document", e);
+                                                }
+                                            });
                                     Intent intent = new Intent(getApplicationContext(), LogIn.class);
                                     startActivity(intent);
                                     finish();

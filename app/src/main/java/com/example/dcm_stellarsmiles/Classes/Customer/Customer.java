@@ -2,16 +2,13 @@ package com.example.dcm_stellarsmiles.Classes.Customer;
 
 import com.example.dcm_stellarsmiles.Enum.AppointmentStatus;
 import com.example.dcm_stellarsmiles.Intefaces.CustomerAppointment;
-import com.example.dcm_stellarsmiles.Intefaces.CustomerValidation;
 
-public class Customer implements Cloneable, CustomerValidation, CustomerAppointment {
+public class Customer implements Cloneable, CustomerAppointment {
     protected String fullName;
     protected String email;
     protected String CNP;
     protected String phoneNumber;
     protected String birthDate;
-    protected String customerID;
-    protected static int nextID = 1;
     protected int visits = 0;
     protected boolean isSmoker;
     protected boolean isDrinker;
@@ -19,7 +16,6 @@ public class Customer implements Cloneable, CustomerValidation, CustomerAppointm
 
     public Customer(String fullName, String email, String phoneNumber, String birthDate, String CNP, boolean isSmoker, boolean isDrinker) {
         this.fullName = fullName;
-        this.customerID = "CUS" + nextID++;
         this.CNP = CNP;
         this.phoneNumber = phoneNumber;
         this.email = email;
@@ -100,23 +96,6 @@ public class Customer implements Cloneable, CustomerValidation, CustomerAppointm
         isDrinker = drinker;
     }
 
-    public String getCustomerID() {
-        return customerID;
-    }
-
-    public void setCustomerID(String employeeID)
-    {
-        if (isValidCustomerID(employeeID)) {
-            this.customerID = employeeID;
-        }
-        else
-        {
-            throw new IllegalArgumentException("Invalid employee ID: " + customerID + ", All CustomerIDs must start with CUS string followed by digits");
-        }
-    }
-    public void setCustomerID(String customerID, String clone) {
-        this.customerID = customerID;
-    }
 
     @Override
     public String toString() {
@@ -126,7 +105,6 @@ public class Customer implements Cloneable, CustomerValidation, CustomerAppointm
                 ", CNP='" + CNP + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", birthDate='" + birthDate + '\'' +
-                ", customerID='" + customerID + '\'' +
                 ", visits=" + visits +
                 ", isSmoker=" + isSmoker +
                 ", isDrinker=" + isDrinker +
@@ -139,7 +117,6 @@ public class Customer implements Cloneable, CustomerValidation, CustomerAppointm
     public Object clone() throws CloneNotSupportedException {
         Customer customer = (Customer) super.clone();
         customer.setVisits(this.visits);
-        customer.setCustomerID(this.customerID, "clone");
         customer.setCNP(this.CNP);
         customer.setEmail(this.email);
         customer.setPhoneNumber(this.phoneNumber);
@@ -148,15 +125,6 @@ public class Customer implements Cloneable, CustomerValidation, CustomerAppointm
         customer.setDrinker(this.isDrinker);
         customer.setSmoker(this.isSmoker);
         return customer;
-    }
-
-    @Override
-    public boolean isValidCustomerID(String newID) {
-        if (newID.startsWith("CUS") && newID.substring(3).matches("\\d+") && Integer.parseInt(newID.substring(3)) > nextID){
-            nextID = Integer.parseInt(newID.substring(3)) + 1;
-            return true;
-        }
-        return false;
     }
 
     @Override
