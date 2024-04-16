@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">DCM_StellarSmiles</string>
+    <string name="password">Password</string>
+    <string name="create_an_account">Create an account</string>
+    <string name="login">Login</string>
+    <string name="email_address">Email address</string>
+    <string name="already_have_an_account_click_here_to_login">Already have an account? Click here to Login</string>
+    <string name="register">Register</string>
+    <string name="welcome">WELCOME!</string>
+    <string name="logout">Logout</string>
+    <string name="stellar_smiles">Stellar Smiles</string>
+    <string name="open_nav">Open Navigation Drawer</string>
+    <string name="close_nav">Close Navigation Drawer</string>
+    <string name="about_us">About Us</string>
+    <string name="share">Share</string>
+    <string name="settings">Settings</string>
+    <string name="home">Home</string>
+    <string name="support_stellar_smiles_com">support@stellar-smiles.com</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="subscriptions">Subscriptions</string>
+    <string name="library">Library</string>
+    <string name="shorts">Shorts</string>
+    <string name="birth_date">Birth Date DD/MM/YYYY</string>
+    <string name="cnp">CNP</string>
+    <string name="full_name">Full name</string>
+    <string name="profile">Profile</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="do_you_regularly_smoke">Do you regularly smoke?</string>
+    <string name="do_you_regulary_drink">Do you regulary drink?</string>
+    <string name="phone_number">Phone number</string>
+</resources>

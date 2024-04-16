@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "601338281900",
+    "project_id": "stellarsmile-14bc1",
+    "storage_bucket": "stellarsmile-14bc1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601338281900:android:12aae755ed567c2bb68409",
+        "android_client_info": {
+          "package_name": "com.example.dcm_stellarsmiles"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLP_TR96BSfcwcqcTdfxF7y_GZcgseLIY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
