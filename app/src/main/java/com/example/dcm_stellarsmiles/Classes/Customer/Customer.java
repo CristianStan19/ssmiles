@@ -4,6 +4,7 @@ import com.example.dcm_stellarsmiles.Enum.AppointmentStatus;
 import com.example.dcm_stellarsmiles.Intefaces.CustomerAppointment;
 
 public class Customer implements Cloneable, CustomerAppointment {
+    protected String customerID;
     protected String fullName;
     protected String email;
     protected String CNP;
@@ -96,6 +97,13 @@ public class Customer implements Cloneable, CustomerAppointment {
         isDrinker = drinker;
     }
 
+    public String getCustomerID() {
+        return customerID;
+    }
+
+    public void setCustomerID(String customerID) {
+        this.customerID = customerID;
+    }
 
     @Override
     public String toString() {

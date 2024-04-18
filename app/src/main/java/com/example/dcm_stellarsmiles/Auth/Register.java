@@ -133,25 +133,28 @@ public class Register extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(Register.this, "Account created successfully.",
                                             Toast.LENGTH_SHORT).show();
+                                    FirebaseUser user = task.getResult().getUser();
+                                    String userID = user.getUid();
                                     db = FirebaseFirestore.getInstance();
                                     Customer customer = new Customer(fullName, email, phoneNumber, birthDate, CNP, isSmoker, isDrinker);
-                                    CollectionReference customersRef = db.collection("customers");
-                                    customersRef.add(customer)
-                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                @Override
-                                                public void onSuccess(DocumentReference documentReference) {
-                                                    Log.d("TAG", "Customer document added with ID: " + documentReference.getId());
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.w("TAG", "Error adding customer document", e);
-                                                }
-                                            });
+                                    customer.setCustomerID(userID);
                                     Intent intent = new Intent(getApplicationContext(), LogIn.class);
                                     startActivity(intent);
                                     finish();
+
+                                    db.collection("customers").document(userID).set(customer)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+
+                                                }
+                                            });
+
                                 } else {
                                     Log.w(TAG, "createUserWithEmail:failure", task.getException());
                                     Toast.makeText(Register.this, "Account creation failure.",

@@ -21,13 +21,17 @@
     <string name="subscriptions">Subscriptions</string>
     <string name="library">Library</string>
     <string name="shorts">Shorts</string>
-    <string name="birth_date">Birth Date DD/MM/YYYY</string>
+    <string name="birth_date">Birth Date (DD/MM/YYYY)</string>
     <string name="cnp">CNP</string>
     <string name="full_name">Full name</string>
     <string name="profile">Profile</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="do_you_regularly_smoke">Do you regularly smoke?</string>
-    <string name="do_you_regulary_drink">Do you regulary drink?</string>
+    <string name="do_you_regularly_drink">Do you regularly drink?</string>
     <string name="phone_number">Phone number</string>
+    <string name="your_profile_page">Your profile page</string>
+    <string name="smoker">Smoker</string>
+    <string name="drinker">Drinker</string>
+    <string name="appointments_completed">Appointments Completed</string>
 </resources>
