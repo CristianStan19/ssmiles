@@ -34,4 +34,5 @@
     <string name="smoker">Smoker</string>
     <string name="drinker">Drinker</string>
     <string name="appointments_completed">Appointments Completed</string>
+    <string name="schedule_an_appointment">Schedule an Appointment</string>
 </resources>
