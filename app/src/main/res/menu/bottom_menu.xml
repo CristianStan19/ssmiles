@@ -8,8 +8,8 @@
         android:icon="@drawable/home"/>
 
     <item
-        android:id="@+id/shorts"
-        android:title="@string/shorts"
+        android:id="@+id/Appointments"
+        android:title="@string/appointments"
         android:icon="@drawable/home"
         />
 

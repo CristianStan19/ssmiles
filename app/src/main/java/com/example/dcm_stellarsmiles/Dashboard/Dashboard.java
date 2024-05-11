@@ -1,5 +1,7 @@
 package com.example.dcm_stellarsmiles.Dashboard;
 
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -11,8 +13,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -31,6 +36,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.dcm_stellarsmiles.Auth.LogIn;
 import com.example.dcm_stellarsmiles.Fragments.AboutUsFragment;
+import com.example.dcm_stellarsmiles.Fragments.AppointmentsFragment;
 import com.example.dcm_stellarsmiles.Fragments.HomeFragment;
 import com.example.dcm_stellarsmiles.Fragments.ProfileFragment;
 import com.example.dcm_stellarsmiles.Fragments.SettingsFragment;
@@ -42,6 +48,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Calendar;
+
 public class Dashboard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     FirebaseAuth auth;
@@ -49,6 +57,8 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
     FloatingActionButton fab;
     DrawerLayout drawerLayout;
     BottomNavigationView bottomNavigationView;
+    DatePickerDialog datePickerDialog;
+    Button btnDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,9 +100,9 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             {
                 replaceFragment(new HomeFragment());
             }
-            if(item.getItemId() == R.id.shorts)
+            if(item.getItemId() == R.id.Appointments)
             {
-                replaceFragment(new SettingsFragment());
+                replaceFragment(new AppointmentsFragment());
             }
             if(item.getItemId() == R.id.subscriptions)
             {
@@ -169,59 +179,109 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
     }
 
     private void showBottomDialog() {
-
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.bottomsheetlayout);
 
-        LinearLayout videoLayout = dialog.findViewById(R.id.layoutVideo);
-        LinearLayout shortsLayout = dialog.findViewById(R.id.layoutShorts);
-        LinearLayout liveLayout = dialog.findViewById(R.id.layoutLive);
+        TextView consultationType = dialog.findViewById(R.id.textConsultationType);
+        TextView doctor = dialog.findViewById(R.id.textDoctor);
+        TextView appointmentDate = dialog.findViewById(R.id.textAppointmentDate);
         ImageView cancelButton = dialog.findViewById(R.id.cancelButton);
+        btnDate = dialog.findViewById(R.id.btnDate);
+        btnDate.setText(getTodaysDate());
 
-        videoLayout.setOnClickListener(new View.OnClickListener() {
+        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
-            public void onClick(View v) {
-
-                dialog.dismiss();
-                Toast.makeText(Dashboard.this,"Upload a Video is clicked",Toast.LENGTH_SHORT).show();
-
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                month = month +1;
+                String date = makeDateString(dayOfMonth,month,year);
+                btnDate.setText(date);
             }
-        });
+        };
 
-        shortsLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
 
-                dialog.dismiss();
-                Toast.makeText(Dashboard.this,"Create a short is Clicked",Toast.LENGTH_SHORT).show();
-
-            }
-        });
-
-        liveLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                dialog.dismiss();
-                Toast.makeText(Dashboard.this,"Go live is Clicked",Toast.LENGTH_SHORT).show();
-
-            }
-        });
+        datePickerDialog = new DatePickerDialog(this, dateSetListener, year, month, day);
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 dialog.dismiss();
             }
         });
 
         dialog.show();
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = androidx.appcompat.R.style.Animation_AppCompat_Dialog;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
-
     }
 
+    private String getTodaysDate() {
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        month = month+1;
+        return makeDateString(day, month, year);
+    }
+
+    private String makeDateString(int dayOfMonth, int month, int year) {
+        return dayOfMonth + "/" + getMonthFormat(month) + "/" + year;
+    }
+
+    private String getMonthFormat(int month)
+    {
+        String monthAbbreviation;
+        switch (month) {
+            case 1:
+                monthAbbreviation = "JAN";
+                break;
+            case 2:
+                monthAbbreviation = "FEB";
+                break;
+            case 3:
+                monthAbbreviation = "MAR";
+                break;
+            case 4:
+                monthAbbreviation = "APR";
+                break;
+            case 5:
+                monthAbbreviation = "MAY";
+                break;
+            case 6:
+                monthAbbreviation = "JUN";
+                break;
+            case 7:
+                monthAbbreviation = "JUL";
+                break;
+            case 8:
+                monthAbbreviation = "AUG";
+                break;
+            case 9:
+                monthAbbreviation = "SEP";
+                break;
+            case 10:
+                monthAbbreviation = "OCT";
+                break;
+            case 11:
+                monthAbbreviation = "NOV";
+                break;
+            case 12:
+                monthAbbreviation = "DEC";
+                break;
+            default:
+                monthAbbreviation = "JAN";
+                break;
+        }
+        return monthAbbreviation;
+    }
+
+    public void openDatePicker(View view)
+    {
+        datePickerDialog.show();
+    }
 }

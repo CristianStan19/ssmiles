@@ -35,4 +35,9 @@
     <string name="drinker">Drinker</string>
     <string name="appointments_completed">Appointments Completed</string>
     <string name="schedule_an_appointment">Schedule an Appointment</string>
+    <string name="consultation_type">Consultation type:</string>
+    <string name="doctor">Doctor:</string>
+    <string name="appointment_date">Appointment Date:</string>
+    <string name="schedule">Schedule</string>
+    <string name="appointments">Appointments</string>
 </resources>

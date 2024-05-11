@@ -97,6 +97,8 @@ public class Customer implements Cloneable, CustomerAppointment {
         isDrinker = drinker;
     }
 
+
+
     public String getCustomerID() {
         return customerID;
     }
