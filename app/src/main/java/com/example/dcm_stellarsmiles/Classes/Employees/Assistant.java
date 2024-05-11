@@ -5,6 +5,7 @@ public class Assistant extends Employee {
 
     public Assistant(String name, double salary, String phoneNumber, String email, String employeeID) {
         super(name, salary, phoneNumber, email, employeeID);
+        position = "Assistant";
     }
 
 

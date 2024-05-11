@@ -1,5 +1,7 @@
 package com.example.dcm_stellarsmiles.Dashboard;
 
+import static com.example.dcm_stellarsmiles.Constants.Constants.APPOINTMENT_COSTS;
+
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -7,16 +9,19 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,13 +47,21 @@ import com.example.dcm_stellarsmiles.Fragments.ProfileFragment;
 import com.example.dcm_stellarsmiles.Fragments.SettingsFragment;
 import com.example.dcm_stellarsmiles.Fragments.ShareFragment;
 import com.example.dcm_stellarsmiles.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class Dashboard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
@@ -59,6 +72,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
     BottomNavigationView bottomNavigationView;
     DatePickerDialog datePickerDialog;
     Button btnDate;
+    Spinner consultationDoctor, consultationSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,12 +197,37 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.bottomsheetlayout);
 
-        TextView consultationType = dialog.findViewById(R.id.textConsultationType);
-        TextView doctor = dialog.findViewById(R.id.textDoctor);
-        TextView appointmentDate = dialog.findViewById(R.id.textAppointmentDate);
         ImageView cancelButton = dialog.findViewById(R.id.cancelButton);
         btnDate = dialog.findViewById(R.id.btnDate);
         btnDate.setText(getTodaysDate());
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Spinner consultationSpinner = dialog.findViewById(R.id.consultationSpinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new ArrayList<>(APPOINTMENT_COSTS.keySet()));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        consultationSpinner.setAdapter(adapter);
+        consultationDoctor = dialog.findViewById(R.id.consultationDoctor);
+        CollectionReference doctorsRef = db.collection("doctors");
+
+        doctorsRef.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<String> doctorNames = new ArrayList<>(); // List to store doctor names
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String doctorName = document.getString("name"); // Replace "name" with your doctor name field
+                                if (doctorName != null) {
+                                    doctorNames.add(doctorName);
+                                }
+                            }
+                            // Now you have a list of doctor names, use it to populate the spinner
+                            ArrayAdapter<String> adapter = new ArrayAdapter<String>(Dashboard.this, android.R.layout.simple_spinner_dropdown_item, doctorNames);
+                            consultationDoctor.setAdapter(adapter);
+                        } else {
+                            Log.w("Dashboard", "Error getting doctors: ", task.getException());
+                        }
+                    }
+                });
 
         DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
