@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -40,6 +41,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.dcm_stellarsmiles.Auth.LogIn;
+import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
+import com.example.dcm_stellarsmiles.Classes.Customer.Customer;
+import com.example.dcm_stellarsmiles.Constants.Constants;
+import com.example.dcm_stellarsmiles.Enum.AppointmentStatus;
 import com.example.dcm_stellarsmiles.Fragments.AboutUsFragment;
 import com.example.dcm_stellarsmiles.Fragments.AppointmentsFragment;
 import com.example.dcm_stellarsmiles.Fragments.HomeFragment;
@@ -55,9 +60,15 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -71,7 +82,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
     DrawerLayout drawerLayout;
     BottomNavigationView bottomNavigationView;
     DatePickerDialog datePickerDialog;
-    Button btnDate;
+    Button btnDate, btnSchedule;
     Spinner consultationDoctor, consultationSpinner;
 
     @Override
@@ -196,17 +207,33 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.bottomsheetlayout);
-
+        btnSchedule = dialog.findViewById(R.id.btnSchedule);
         ImageView cancelButton = dialog.findViewById(R.id.cancelButton);
         btnDate = dialog.findViewById(R.id.btnDate);
         btnDate.setText(getTodaysDate());
+        TextView textCost = dialog.findViewById(R.id.textCost);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Spinner consultationSpinner = dialog.findViewById(R.id.consultationSpinner);
+        consultationSpinner = dialog.findViewById(R.id.consultationSpinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new ArrayList<>(APPOINTMENT_COSTS.keySet()));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         consultationSpinner.setAdapter(adapter);
         consultationDoctor = dialog.findViewById(R.id.consultationDoctor);
         CollectionReference doctorsRef = db.collection("doctors");
+
+        consultationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // Handle item selection here
+                String type = (String) parent.getItemAtPosition(position);
+                int cost = Constants.APPOINTMENT_COSTS.getOrDefault(type, 0);
+                textCost.setText(String.valueOf(cost));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                textCost.setText("0.00");
+            }
+        });
 
         doctorsRef.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -215,12 +242,11 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                         if (task.isSuccessful()) {
                             List<String> doctorNames = new ArrayList<>(); // List to store doctor names
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                String doctorName = document.getString("name"); // Replace "name" with your doctor name field
+                                String doctorName = document.getString("name");
                                 if (doctorName != null) {
                                     doctorNames.add(doctorName);
                                 }
                             }
-                            // Now you have a list of doctor names, use it to populate the spinner
                             ArrayAdapter<String> adapter = new ArrayAdapter<String>(Dashboard.this, android.R.layout.simple_spinner_dropdown_item, doctorNames);
                             consultationDoctor.setAdapter(adapter);
                         } else {
@@ -250,6 +276,61 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             public void onClick(View v) {
                 dialog.dismiss();
             }
+        });
+
+        btnSchedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                String customerID = user != null ? user.getUid() : null;
+
+                if (customerID != null) {
+                    DocumentReference customerDocRef = db.collection("customers").document(customerID);
+                    db.runTransaction(new Transaction.Function<Void>() {
+                        @Override
+                        public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                            DocumentSnapshot snapshot = transaction.get(customerDocRef);
+                            Customer customer = snapshot.toObject(Customer.class);
+                            int newVisits = customer.getVisits() + 1;
+                            customer.setVisits(newVisits);
+                            transaction.update(customerDocRef, "visits", newVisits);
+                            String appointmentDate = btnDate.getText().toString();
+                            String Type = consultationSpinner.getSelectedItem().toString();
+                            String Doctor = consultationDoctor.getSelectedItem().toString();
+                            int cost = Integer.parseInt(String.valueOf(textCost.getText()));
+                            if(customer.getVisits() >= Constants.LOYALITY_REQUIRMENT) {
+                                cost = (int) (cost - cost * Constants.LOYALITY_DISCOUNT);
+                            }
+                            Appointment appointment = new Appointment(appointmentDate, Type, Doctor);
+                            appointment.setCost(cost);
+                            appointment.setAppointmentStatus(Constants.APP_ON_GOING);
+                            db.collection("appointments").document(customerID+customer.getVisits()).set(appointment).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()){
+                                        dialog.dismiss();
+                                    }
+                                }
+                            });
+
+
+
+                            return null;
+                        }
+                    }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                dialog.dismiss();
+                            } else {
+                                // Handle error during update (optional)
+                            }
+                        }
+                    });
+                }
+            }
+
+
         });
 
         dialog.show();

@@ -6,23 +6,31 @@ import com.example.dcm_stellarsmiles.Classes.Employees.Doctor;
 import com.example.dcm_stellarsmiles.Constants.Constants;
 import com.example.dcm_stellarsmiles.Enum.AppointmentStatus;
 
-public class Appointment {
+import java.io.Serializable;
+
+public class Appointment implements Serializable {
     private String appointmentDate;
     private String type;
-    private double cost;
-    private Doctor doctor;
-    private Assistant assistant;
-    private Customer customer;
+    private int cost;
+    private String doctor;
+    private String appointmentStatus;
 
-    public Appointment(String appointmentDate, String type, Doctor doctor, Assistant assistant, Customer customer) {
+    public Appointment(String appointmentDate, String type, String doctor) {
         this.appointmentDate = appointmentDate;
         this.type = type;
-        this.cost = Constants.APPOINTMENT_COSTS.getOrDefault(type, 0.0);
-        this.assistant = assistant;
         this.doctor = doctor;
-        this.customer = customer;
-        this.customer.setVisits(this.customer.getVisits() + 1);
-        this.customer.setAppointmentStatus(AppointmentStatus.APPOINTMENT_ONGOING);
+    }
+
+    public String getAppointmentStatus() {
+        return appointmentStatus;
+    }
+
+    public void setAppointmentStatus(String appointmentStatus) {
+        this.appointmentStatus = appointmentStatus;
+    }
+
+    public Appointment(int cost) {
+        this.cost = cost;
     }
 
     public String getAppointmentDate() {
@@ -41,32 +49,22 @@ public class Appointment {
         this.type = type;
     }
 
-    public double getCost() {
-        if(customer.getVisits() >= Constants.LOYALITY_REQUIRMENT) {
-            return cost - cost * Constants.LOYALITY_DISCOUNT;
-        }
-        return cost;
-    }
-
-    public void setCost(double cost) {
+    public void setCost(int cost) {
         this.cost = cost;
     }
 
-    public Doctor getDoctor() {
+    public String getDoctor() {
         return doctor;
     }
 
-    public void setDoctor(Doctor doctor) {
+    public void setDoctor(String doctor) {
         this.doctor = doctor;
     }
 
-    public Assistant getAssistant() {
-        return assistant;
+    public double getCost() {
+        return cost;
     }
 
-    public void setAssistant(Assistant assistant) {
-        this.assistant = assistant;
-    }
 
     @Override
     public String toString() {
@@ -77,10 +75,10 @@ public class Appointment {
                 '}';
     }
 
+
     @Override
     public Object clone() throws CloneNotSupportedException {
         Appointment appointment = (Appointment) super.clone();
-        appointment.setAssistant(this.assistant);
         appointment.setDoctor(this.doctor);
         appointment.setCost(this.cost);
         appointment.setAppointmentDate(this.appointmentDate);

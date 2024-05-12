@@ -29,10 +29,8 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        // Find UI elements
         tvFN = view.findViewById(R.id.tvFullName);
         tvEA = view.findViewById(R.id.tvEmailAddress);
         tvBD = view.findViewById(R.id.tvBirthDate);
@@ -41,16 +39,10 @@ public class ProfileFragment extends Fragment {
         tvDK = view.findViewById(R.id.tvDrinker);
         tvAC = view.findViewById(R.id.tvAppointmentsCompleted);
 
-        // ... (find other UI elements)
-
-        // Initialize Firebase Firestore
         db = FirebaseFirestore.getInstance();
-
-        // Get the user's UID (assuming Firebase Authentication is set up)
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String customerID = user != null ? user.getUid() : null;
 
-        // Retrieve data from Firestore if user is logged in
         if (customerID != null) {
             DocumentReference docRef = db.collection("customers").document(customerID);
             docRef.get()

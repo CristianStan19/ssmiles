@@ -40,4 +40,6 @@
     <string name="appointment_date">Appointment Date:</string>
     <string name="schedule">Schedule</string>
     <string name="appointments">Appointments</string>
+    <string name="appointment_status">Appointment Status:</string>
+    <string name="appointment_cost">Appointment Cost:</string>
 </resources>

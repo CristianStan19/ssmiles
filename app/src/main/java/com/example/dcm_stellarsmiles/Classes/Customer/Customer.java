@@ -1,9 +1,14 @@
 package com.example.dcm_stellarsmiles.Classes.Customer;
 
+import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
 import com.example.dcm_stellarsmiles.Enum.AppointmentStatus;
 import com.example.dcm_stellarsmiles.Intefaces.CustomerAppointment;
 
-public class Customer implements Cloneable, CustomerAppointment {
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Customer implements Cloneable, Serializable {
     protected String customerID;
     protected String fullName;
     protected String email;
@@ -13,7 +18,9 @@ public class Customer implements Cloneable, CustomerAppointment {
     protected int visits = 0;
     protected boolean isSmoker;
     protected boolean isDrinker;
-    protected AppointmentStatus appointmentStatus = AppointmentStatus.NO_APPOINTMENT;
+
+    public Customer() {
+    }
 
     public Customer(String fullName, String email, String phoneNumber, String birthDate, String CNP, boolean isSmoker, boolean isDrinker) {
         this.fullName = fullName;
@@ -23,14 +30,6 @@ public class Customer implements Cloneable, CustomerAppointment {
         this.birthDate = birthDate;
         this.isSmoker = isSmoker;
         this.isDrinker = isDrinker;
-    }
-
-    public AppointmentStatus getAppointmentStatus() {
-        return appointmentStatus;
-    }
-
-    public void setAppointmentStatus(AppointmentStatus appointmentStatus) {
-        this.appointmentStatus = appointmentStatus;
     }
 
     public int getVisits() {
@@ -137,30 +136,5 @@ public class Customer implements Cloneable, CustomerAppointment {
         return customer;
     }
 
-    @Override
-    public void cancelAppointment() {
-        appointmentStatus = AppointmentStatus.CANCELED_APPOINTMENT;
-        System.out.println("Your appointment has been canceled!");
-    }
-
-    @Override
-    public void checkAppointment() {
-        String status;
-        switch (appointmentStatus) {
-            case NO_APPOINTMENT:
-                status = "you have no appointment.";
-                break;
-            case CANCELED_APPOINTMENT:
-                status = "canceled.";
-                break;
-            case APPOINTMENT_ONGOING:
-                status = "ongoing";
-                break;
-            default:
-                status = "unknown";
-                break;
-        }
-        System.out.println("Your appointment status is " + status);
-    }
 }
 
