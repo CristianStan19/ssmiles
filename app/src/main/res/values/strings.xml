@@ -42,4 +42,6 @@
     <string name="appointments">Appointments</string>
     <string name="appointment_status">Appointment Status:</string>
     <string name="appointment_cost">Appointment Cost:</string>
+    <string name="welcomeUser">Welcome</string>
+    <string name="you_currently_have_an_appointment_on_going">You currently have an appointment ongoing!</string>
 </resources>

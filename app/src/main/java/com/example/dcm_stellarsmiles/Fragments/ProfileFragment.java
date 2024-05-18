@@ -22,7 +22,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class ProfileFragment extends Fragment {
 
     private TextView tvFN, tvEA, tvBD, tvPN, tvSK, tvDK, tvAC;
-    // ... (add other UI elements for displaying user data)
 
     private FirebaseFirestore db;
 
@@ -57,8 +56,6 @@ public class ProfileFragment extends Fragment {
                                 String drinkerString = getResources().getString(R.string.drinker);
                                 String smokerString = getResources().getString(R.string.smoker);
                                 String appointmentsCompletedString = getResources().getString(R.string.appointments_completed);
-
-                                // Extract data from the document
                                 String name = documentSnapshot.getString("fullName");
                                 String email = documentSnapshot.getString("email");
                                 String birthdate = documentSnapshot.getString("birthDate");
@@ -66,7 +63,6 @@ public class ProfileFragment extends Fragment {
                                 String drinker = documentSnapshot.getBoolean("drinker") ? "Yes" : "No";
                                 String smoker = documentSnapshot.getBoolean("smoker") ? "Yes" : "No";
                                 long visits = documentSnapshot.getLong("visits");
-                                // Update UI elements
                                 tvFN.setText(fullNameString + ": " + name);
                                 tvEA.setText(emailAddressString + ": " + email);
                                 tvBD.setText(birthDateString + ": " + birthdate);
@@ -74,10 +70,8 @@ public class ProfileFragment extends Fragment {
                                 tvDK.setText(drinkerString + ": " + drinker);
                                 tvSK.setText(smokerString + ": " + smoker);
                                 tvAC.setText(appointmentsCompletedString + ": " + visits);
-                                // ... (update other UI elements)
                             } else {
                                 Log.d("Firestore", "No document found for customer ID: " + customerID);
-                                // Handle the case where no document is found (optional)
                             }
                         }
                     })

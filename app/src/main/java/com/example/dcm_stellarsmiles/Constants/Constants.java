@@ -5,9 +5,9 @@ import java.util.Map;
 
 public class Constants {
     public static final String DEFAULT_POSITION = "Employee";
-    public static final String APP_ON_GOING = "On Going";
-    public static final String APP_CANCELED = "Canceled";
-    public static final String APP_COMPLETED = "Completed";
+    public static final String APP_ON_GOING = "ongoing";
+    public static final String APP_CANCELED = "canceled";
+    public static final String APP_COMPLETED = "completed";
 
     public static final String ROUTINE_CHECKUP = "Routine Checkup";
     public static final String TOOTH_EXTRACTION = "Tooth Extraction";
