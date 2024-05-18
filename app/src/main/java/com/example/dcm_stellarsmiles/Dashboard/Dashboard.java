@@ -48,6 +48,7 @@ import com.example.dcm_stellarsmiles.Enum.AppointmentStatus;
 import com.example.dcm_stellarsmiles.Fragments.AboutUsFragment;
 import com.example.dcm_stellarsmiles.Fragments.AppointmentsFragment;
 import com.example.dcm_stellarsmiles.Fragments.HomeFragment;
+import com.example.dcm_stellarsmiles.Fragments.PriceFragment;
 import com.example.dcm_stellarsmiles.Fragments.ProfileFragment;
 import com.example.dcm_stellarsmiles.Fragments.SettingsFragment;
 import com.example.dcm_stellarsmiles.Fragments.ShareFragment;
@@ -133,9 +134,9 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             {
                 replaceFragment(new ShareFragment());
             }
-            if(item.getItemId() == R.id.library)
+            if(item.getItemId() == R.id.price)
             {
-                replaceFragment(new AboutUsFragment());
+                replaceFragment(new PriceFragment());
             }
 
             return true;
@@ -304,6 +305,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                             Appointment appointment = new Appointment(appointmentDate, Type, Doctor);
                             appointment.setCost(cost);
                             appointment.setAppointmentStatus(Constants.APP_ON_GOING);
+                            appointment.setAppointmentId(customerID+customer.getVisits());
                             db.collection("appointments").document(customerID+customer.getVisits()).set(appointment).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {

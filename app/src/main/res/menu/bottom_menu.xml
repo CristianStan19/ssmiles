@@ -23,8 +23,8 @@
         android:title="@string/subscriptions"
         android:icon="@drawable/home" />
     <item
-        android:id="@+id/library"
-        android:title="@string/library"
+        android:id="@+id/price"
+        android:title="@string/prices"
         android:icon="@drawable/home" />
 
 </menu>

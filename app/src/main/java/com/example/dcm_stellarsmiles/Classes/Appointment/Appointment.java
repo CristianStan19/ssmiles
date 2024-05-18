@@ -14,6 +14,9 @@ public class Appointment implements Serializable {
     private int cost;
     private String doctor;
     private String appointmentStatus;
+    private String appointmentId;
+    public Appointment()
+    {}
 
     public Appointment(String appointmentDate, String type, String doctor) {
         this.appointmentDate = appointmentDate;
@@ -65,6 +68,13 @@ public class Appointment implements Serializable {
         return cost;
     }
 
+    public String getAppointmentId() {
+        return appointmentId;
+    }
+
+    public void setAppointmentId(String appointmentId) {
+        this.appointmentId = appointmentId;
+    }
 
     @Override
     public String toString() {

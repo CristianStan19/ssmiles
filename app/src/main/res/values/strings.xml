@@ -44,4 +44,10 @@
     <string name="appointment_cost">Appointment Cost:</string>
     <string name="welcomeUser">Welcome</string>
     <string name="you_currently_have_an_appointment_on_going">You currently have an appointment ongoing!</string>
+    <string name="appointment_type">Appointment Type</string>
+    <string name="cost">Cost</string>
+    <string name="costApp">Cost:</string>
+    <string name="typeApp">Appointment Type:</string>
+    <string name="prices">Prices</string>
+    <string name="cancel">Cancel</string>
 </resources>

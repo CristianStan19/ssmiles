@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/darkPurple"
-    tools:context=".Fragments.AppointmentsFragment">
+    tools:context=".Fragments.PriceFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/appointmentsRecyclerView"
+        android:id="@+id/priceRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp" />
