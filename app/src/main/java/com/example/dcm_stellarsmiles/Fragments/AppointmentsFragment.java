@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.dcm_stellarsmiles.Adapter.AppointmentsAdapter;
+import com.example.dcm_stellarsmiles.Adapter.SpaceItemDecoration;
 import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
 import com.example.dcm_stellarsmiles.Intefaces.OnCancelAppointmentClickListener;
 import com.example.dcm_stellarsmiles.R;
@@ -43,6 +44,8 @@ public class AppointmentsFragment extends Fragment implements OnCancelAppointmen
 
         // Initialize RecyclerView and List
         appointmentsRecyclerView = view.findViewById(R.id.appointmentsRecyclerView);
+        int spaceHeight = getResources().getDimensionPixelSize(R.dimen.dp_12);
+        appointmentsRecyclerView.addItemDecoration(new SpaceItemDecoration(spaceHeight));
         appointmentList = new ArrayList<>();
         appointmentsAdapter = new AppointmentsAdapter(appointmentList, this);
         appointmentsRecyclerView.setAdapter(appointmentsAdapter);

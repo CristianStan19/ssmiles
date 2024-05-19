@@ -2,8 +2,8 @@
     <!-- Base application theme. -->
     <style name="Theme.DCM" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/midPurple</item>
-        <item name="colorPrimaryVariant">@color/midPurple</item>
+        <item name="colorPrimary">@color/lightPurple</item>
+        <item name="colorPrimaryVariant">@color/lightPurple</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/lightPurple</item>

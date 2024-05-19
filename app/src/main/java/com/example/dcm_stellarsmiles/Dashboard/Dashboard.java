@@ -47,6 +47,7 @@ import com.example.dcm_stellarsmiles.Constants.Constants;
 import com.example.dcm_stellarsmiles.Enum.AppointmentStatus;
 import com.example.dcm_stellarsmiles.Fragments.AboutUsFragment;
 import com.example.dcm_stellarsmiles.Fragments.AppointmentsFragment;
+import com.example.dcm_stellarsmiles.Fragments.EmployeeFragment;
 import com.example.dcm_stellarsmiles.Fragments.HomeFragment;
 import com.example.dcm_stellarsmiles.Fragments.PriceFragment;
 import com.example.dcm_stellarsmiles.Fragments.ProfileFragment;
@@ -130,9 +131,9 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             {
                 replaceFragment(new AppointmentsFragment());
             }
-            if(item.getItemId() == R.id.subscriptions)
+            if(item.getItemId() == R.id.employees)
             {
-                replaceFragment(new ShareFragment());
+                replaceFragment(new EmployeeFragment());
             }
             if(item.getItemId() == R.id.price)
             {

@@ -4,9 +4,9 @@ import com.example.dcm_stellarsmiles.Constants.Constants;
 
 public class Doctor extends Employee {
     private String specialization;
-
-    public Doctor(String name, double salary, String phoneNumber, String email, String employeeID) {
-        super(name, salary, phoneNumber, email, employeeID);
+    public Doctor(){}
+    public Doctor(String name, String phoneNumber, String email, String employeeID) {
+        super(name, phoneNumber, email, employeeID);
         this.position = "Doctor";
     }
 

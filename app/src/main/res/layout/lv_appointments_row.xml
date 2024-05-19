@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="200dp"
-    android:background="@color/lightPurple">
+    android:background="@drawable/rounded_bk">
 
     <ImageView
         android:id="@+id/imageViewAppointment"
@@ -70,7 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="30dp"
-        android:background="@color/darkPurple"
+        android:background="@color/midPurple"
         android:padding="10sp"
         android:text="@string/cancel"
         android:textColor="@android:color/white"

@@ -2,9 +2,9 @@ package com.example.dcm_stellarsmiles.Classes.Employees;
 
 public class Assistant extends Employee {
     private String department;
-
-    public Assistant(String name, double salary, String phoneNumber, String email, String employeeID) {
-        super(name, salary, phoneNumber, email, employeeID);
+    public Assistant(){}
+    public Assistant(String name, String phoneNumber, String email, String employeeID) {
+        super(name, phoneNumber, email, employeeID);
         position = "Assistant";
     }
 

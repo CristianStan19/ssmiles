@@ -1,9 +1,10 @@
 package com.example.dcm_stellarsmiles.Classes.Employees;
 
 public class Receptionist extends Employee {
+    public Receptionist(){}
 
-    public Receptionist(String name, double salary, String phoneNumber, String shift, String email) {
-        super(name, salary, phoneNumber, shift, email);
+    public Receptionist(String name, String phoneNumber, String shift, String email) {
+        super(name, phoneNumber, shift, email);
         this.position = "Receptionist";
     }
 

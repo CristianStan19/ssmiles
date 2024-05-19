@@ -19,8 +19,8 @@
         android:enabled="false"  />
 
     <item
-        android:id="@+id/subscriptions"
-        android:title="@string/subscriptions"
+        android:id="@+id/employees"
+        android:title="@string/employees"
         android:icon="@drawable/home" />
     <item
         android:id="@+id/price"

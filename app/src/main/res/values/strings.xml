@@ -37,17 +37,21 @@
     <string name="schedule_an_appointment">Schedule an Appointment</string>
     <string name="consultation_type">Consultation type:</string>
     <string name="doctor">Doctor:</string>
-    <string name="appointment_date">Appointment Date:</string>
+    <string name="appointment_date">Date:</string>
     <string name="schedule">Schedule</string>
     <string name="appointments">Appointments</string>
-    <string name="appointment_status">Appointment Status:</string>
+    <string name="appointment_status">Status:</string>
     <string name="appointment_cost">Appointment Cost:</string>
     <string name="welcomeUser">Welcome</string>
     <string name="you_currently_have_an_appointment_on_going">You currently have an appointment ongoing!</string>
     <string name="appointment_type">Appointment Type</string>
     <string name="cost">Cost</string>
     <string name="costApp">Cost:</string>
-    <string name="typeApp">Appointment Type:</string>
+    <string name="typeApp">Type:</string>
     <string name="prices">Prices</string>
     <string name="cancel">Cancel</string>
+    <string name="receptionists">Receptionists</string>
+    <string name="assistants">Assistants</string>
+    <string name="doctors">Doctors</string>
+    <string name="employees">Employees</string>
 </resources>

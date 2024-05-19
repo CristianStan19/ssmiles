@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.dcm_stellarsmiles.Adapter.PriceAdapter;
+import com.example.dcm_stellarsmiles.Adapter.SpaceItemDecoration;
 import com.example.dcm_stellarsmiles.Classes.Price.PriceItem;
 import com.example.dcm_stellarsmiles.R;
 
@@ -39,6 +40,8 @@ public class PriceFragment extends Fragment {
 
         // Initialize RecyclerView and List
         priceRecyclerView = view.findViewById(R.id.priceRecyclerView);
+        int spaceHeight = getResources().getDimensionPixelSize(R.dimen.dp_12);
+        priceRecyclerView.addItemDecoration(new SpaceItemDecoration(spaceHeight));
         priceItemList = new ArrayList<>();
         priceAdapter = new PriceAdapter(priceItemList);
         priceRecyclerView.setAdapter(priceAdapter);
