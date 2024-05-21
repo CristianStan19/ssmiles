@@ -22,6 +22,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.dcm_stellarsmiles.Dashboard.Dashboard;
+import com.example.dcm_stellarsmiles.Dashboard.EmployeeDashboard;
+import com.example.dcm_stellarsmiles.Dashboard.RoleCenterDashboard;
 import com.example.dcm_stellarsmiles.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -44,8 +46,21 @@ public class LogIn extends AppCompatActivity {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
-            Intent intent = new Intent(getApplicationContext(), Dashboard.class);
-            startActivity(intent);
+            if(currentUser.getEmail().equals("rolecenter@stellarsmiles.ro"))
+            {
+                Intent intent = new Intent(getApplicationContext(), RoleCenterDashboard.class);
+                startActivity(intent);
+            }
+            else if (currentUser.getEmail().contains("@stellarsmiles.ro"))
+            {
+                Intent intent = new Intent(getApplicationContext(), EmployeeDashboard.class);
+                startActivity(intent);
+            }
+            else
+            {
+                Intent intent = new Intent(getApplicationContext(), Dashboard.class);
+                startActivity(intent);
+            }
             finish();
         }
     }
@@ -103,8 +118,21 @@ public class LogIn extends AppCompatActivity {
                                     Log.d(TAG, "signInWithEmail:success");
                                     Toast.makeText(LogIn.this, "Authentication successful.",
                                             Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(getApplicationContext(), Dashboard.class);
-                                    startActivity(intent);
+                                    if(email.equals("rolecenter@stellarsmiles.ro"))
+                                    {
+                                        Intent intent = new Intent(getApplicationContext(), RoleCenterDashboard.class);
+                                        startActivity(intent);
+                                    }
+                                    else if (email.contains("@stellarsmiles.ro"))
+                                    {
+                                        Intent intent = new Intent(getApplicationContext(), EmployeeDashboard.class);
+                                        startActivity(intent);
+                                    }
+                                    else
+                                    {
+                                        Intent intent = new Intent(getApplicationContext(), Dashboard.class);
+                                        startActivity(intent);
+                                    }
                                     finish();
                                 } else {
                                     Log.w(TAG, "signInWithEmail:failure", task.getException());

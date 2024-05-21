@@ -23,6 +23,7 @@
         android:textStyle="bold"/>
     <TextView
         android:layout_width="wrap_content"
+        android:id="@+id/text_view_email"
         android:layout_height="wrap_content"
         android:text="@string/support_stellar_smiles_com"
         android:textColor="@color/darkPurple"

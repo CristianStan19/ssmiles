@@ -15,14 +15,23 @@
         android:theme="@style/Theme.DCM"
         tools:targetApi="31">
         <activity
+            android:name=".Schedule.ScheduleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Dashboard.RoleCenterDashboard"
+            android:exported="false" />
+        <activity
             android:name=".Dashboard.Dashboard"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:exported="true">
-        </activity>
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".Dashboard.EmployeeDashboard"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".Auth.Register"
             android:exported="false"
-            android:theme="@style/Theme.Material3.Light.NoActionBar"/>
+            android:theme="@style/Theme.Material3.Light.NoActionBar" />
         <activity
             android:name=".Auth.LogIn"
             android:exported="false"
