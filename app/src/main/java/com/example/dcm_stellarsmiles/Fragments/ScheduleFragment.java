@@ -1,4 +1,4 @@
-package com.example.dcm_stellarsmiles.Schedule;
+package com.example.dcm_stellarsmiles.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,16 +35,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ScheduleFragment extends Fragment {
-    private CheckBox checkBoxMonday, checkBoxTuesday, checkBoxWednesday, checkBoxThursday, checkBoxFriday, checkBoxSaturday, checkBoxSunday;
-    private LinearLayout layoutMonday, layoutTuesday, layoutWednesday, layoutThursday, layoutFriday, layoutSaturday, layouSunday;
+    private LinearLayout layoutDays;
     private Button btnSaveSchedule, btnDate;
     private TextView textViewScheduleStatus;
     private String doctorID;
-    private String selectedWeek;
+    private String selectedMonth;
     private FirebaseFirestore db;
+    private Map<String, List<CheckBox>> dayCheckBoxes = new HashMap<>();
 
     public ScheduleFragment() {
         // Required empty public constructor
@@ -58,8 +60,7 @@ public class ScheduleFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
         LinearLayout layout_schedule = view.findViewById(R.id.layout_schedule);
@@ -73,39 +74,21 @@ public class ScheduleFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
-        checkBoxMonday = view.findViewById(R.id.checkBoxMonday);
-        checkBoxTuesday = view.findViewById(R.id.checkBoxTuesday);
-        checkBoxWednesday = view.findViewById(R.id.checkBoxWednesday);
-        checkBoxThursday = view.findViewById(R.id.checkBoxThursday);
-        checkBoxFriday = view.findViewById(R.id.checkBoxFriday);
-        checkBoxSaturday = view.findViewById(R.id.checkBoxSaturday);
-        checkBoxSunday = view.findViewById(R.id.checkBoxSunday);
         btnSaveSchedule = view.findViewById(R.id.btnSaveSchedule);
         btnDate = view.findViewById(R.id.btnDate);
-        layoutMonday = view.findViewById(R.id.layoutMonday);
-        layoutTuesday = view.findViewById(R.id.layoutTuesday);
-        layoutWednesday = view.findViewById(R.id.layoutWednesday);
-        layoutThursday = view.findViewById(R.id.layoutThursday);
-        layoutFriday = view.findViewById(R.id.layoutFriday);
-        layoutSaturday = view.findViewById(R.id.layoutSaturday);
-        layouSunday = view.findViewById(R.id.layoutSunday);
+        layoutDays = view.findViewById(R.id.layoutDays);
         textViewScheduleStatus = view.findViewById(R.id.textViewScheduleStatus);
 
-        btnSaveSchedule.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveSchedule();
-            }
-        });
+        btnDate.setOnClickListener(v -> showMonthPickerDialog());
 
-        // Initialize current week
+        btnSaveSchedule.setOnClickListener(v -> saveSchedule());
+
+        // Initialize current month
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH) + 1; // Month is 0-based
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-
-        selectedWeek = year + "-W" + getWeekOfYear(year, month, day);
-        btnDate.setText(selectedWeek);
+        int month = cal.get(Calendar.MONTH);
+        selectedMonth = getMonthFormat(month + 1) + " " + year;
+        btnDate.setText(selectedMonth);
 
         checkIfScheduleExists();
 
@@ -138,72 +121,197 @@ public class ScheduleFragment extends Fragment {
 
     private void saveSchedule() {
         List<String> availableDays = new ArrayList<>();
-        if (checkBoxMonday.isChecked()) availableDays.add("Monday");
-        if (checkBoxTuesday.isChecked()) availableDays.add("Tuesday");
-        if (checkBoxWednesday.isChecked()) availableDays.add("Wednesday");
-        if (checkBoxThursday.isChecked()) availableDays.add("Thursday");
-        if (checkBoxFriday.isChecked()) availableDays.add("Friday");
-        if (checkBoxSaturday.isChecked()) availableDays.add("Saturday");
-        if (checkBoxSunday.isChecked()) availableDays.add("Sunday");
+        for (Map.Entry<String, List<CheckBox>> entry : dayCheckBoxes.entrySet()) {
+            for (CheckBox checkBox : entry.getValue()) {
+                if (checkBox.isChecked()) {
+                    availableDays.add(checkBox.getText().toString());
+                }
+            }
+        }
 
-        if (selectedWeek == null) {
-            Toast.makeText(getContext(), "Please select a week.", Toast.LENGTH_SHORT).show();
+        if (selectedMonth == null) {
+            Toast.makeText(getContext(), "Please select a month.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Schedule schedule = new Schedule(doctorID, selectedWeek, availableDays);
+        Schedule schedule = new Schedule(doctorID, selectedMonth, availableDays);
 
-        db.collection("schedules").document(doctorID + "_" + selectedWeek).set(schedule)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(getContext(), "Schedule saved successfully", Toast.LENGTH_SHORT).show();
-                            lockSchedule();
-                        } else {
-                            Toast.makeText(getContext(), "Failed to save schedule", Toast.LENGTH_SHORT).show();
-                        }
+        db.collection("schedules").document(doctorID + "_" + selectedMonth).set(schedule)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getContext(), "Schedule saved successfully", Toast.LENGTH_SHORT).show();
+                        lockSchedule();
+                    } else {
+                        Toast.makeText(getContext(), "Failed to save schedule", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void checkIfScheduleExists() {
-        db.collection("schedules").document(doctorID + "_" + selectedWeek).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                lockSchedule();
-                            }
+        db.collection("schedules").document(doctorID + "_" + selectedMonth).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            lockSchedule();
                         } else {
-                            Toast.makeText(getContext(), "Failed to check schedule", Toast.LENGTH_SHORT).show();
+                            generateCheckBoxesForMonth(selectedMonth);
                         }
+                    } else {
+                        Toast.makeText(getContext(), "Failed to check schedule", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void lockSchedule() {
         // Hide all CheckBox layouts
-        layoutMonday.setVisibility(View.GONE);
-        layoutTuesday.setVisibility(View.GONE);
-        layoutThursday.setVisibility(View.GONE);
-        layoutWednesday.setVisibility(View.GONE);
-        layoutFriday.setVisibility(View.GONE);
-        layoutSaturday.setVisibility(View.GONE);
-        layouSunday.setVisibility(View.GONE);
+        layoutDays.setVisibility(View.GONE);
         btnSaveSchedule.setVisibility(View.GONE);
 
         // Show TextView with schedule status
         textViewScheduleStatus.setVisibility(View.VISIBLE);
-        textViewScheduleStatus.setText("You have already done your schedule for the week");
+        textViewScheduleStatus.setText("You have already done your schedule for the month.");
     }
 
+    private void showMonthPickerDialog() {
+        final Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                getContext(),
+                (view, year, month, dayOfMonth) -> {
+                    selectedMonth = getMonthFormat(month + 1) + " " + year;
+                    btnDate.setText(selectedMonth);
+                    checkIfScheduleExists();
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.getDatePicker().findViewById(
+                getResources().getIdentifier("android:id/day", null, null)
+        ).setVisibility(View.GONE); // Hide the day spinner
 
-    private int getWeekOfYear(int year, int month, int dayOfMonth) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(year, month - 1, dayOfMonth);
-        return cal.get(Calendar.WEEK_OF_YEAR);
+        datePickerDialog.show();
+    }
+
+    private void generateCheckBoxesForMonth(String monthYear) {
+        layoutDays.removeAllViews();
+        dayCheckBoxes.clear();
+
+        String[] parts = monthYear.split(" ");
+        int month = getMonthNumber(parts[0]);
+        int year = Integer.parseInt(parts[1]);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month - 1, 1);
+        int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        String[] dayAbbr = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+
+        for (int day = 1; day <= daysInMonth; day++) {
+            calendar.set(year, month - 1, day);
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            String dayLabel = dayAbbr[dayOfWeek - 1] + "-" + day;
+
+            LinearLayout dayLayout = new LinearLayout(getContext());
+            dayLayout.setOrientation(LinearLayout.HORIZONTAL);
+            dayLayout.setPadding(40, 8, 40, 8);
+            dayLayout.setBackgroundColor(getResources().getColor(R.color.lightPurple));
+
+            CheckBox checkBox = new CheckBox(getContext());
+            checkBox.setText(dayLabel);
+            checkBox.setTextColor(getResources().getColor(R.color.darkPurple));
+            checkBox.setTextSize(16);
+            checkBox.setPadding(8, 8, 8, 8);
+            checkBox.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            layoutParams.setMargins(0, 0, 0, 8);
+            checkBox.setLayoutParams(layoutParams);
+
+            dayLayout.addView(checkBox);
+            layoutDays.addView(dayLayout);
+
+            List<CheckBox> checkBoxList = dayCheckBoxes.getOrDefault(dayAbbr[dayOfWeek - 1], new ArrayList<>());
+            checkBoxList.add(checkBox);
+            dayCheckBoxes.put(dayAbbr[dayOfWeek - 1], checkBoxList);
+        }
+    }
+
+    private String getMonthFormat(int month) {
+        String monthAbbreviation;
+        switch (month) {
+            case 1:
+                monthAbbreviation = "JAN";
+                break;
+            case 2:
+                monthAbbreviation = "FEB";
+                break;
+            case 3:
+                monthAbbreviation = "MAR";
+                break;
+            case 4:
+                monthAbbreviation = "APR";
+                break;
+            case 5:
+                monthAbbreviation = "MAY";
+                break;
+            case 6:
+                monthAbbreviation = "JUN";
+                break;
+            case 7:
+                monthAbbreviation = "JUL";
+                break;
+            case 8:
+                monthAbbreviation = "AUG";
+                break;
+            case 9:
+                monthAbbreviation = "SEP";
+                break;
+            case 10:
+                monthAbbreviation = "OCT";
+                break;
+            case 11:
+                monthAbbreviation = "NOV";
+                break;
+            case 12:
+                monthAbbreviation = "DEC";
+                break;
+            default:
+                monthAbbreviation = "JAN";
+                break;
+        }
+        return monthAbbreviation;
+    }
+
+    private int getMonthNumber(String month) {
+        switch (month) {
+            case "JAN":
+                return 1;
+            case "FEB":
+                return 2;
+            case "MAR":
+                return 3;
+            case "APR":
+                return 4;
+            case "MAY":
+                return 5;
+            case "JUN":
+                return 6;
+            case "JUL":
+                return 7;
+            case "AUG":
+                return 8;
+            case "SEP":
+                return 9;
+            case "OCT":
+                return 10;
+            case "NOV":
+                return 11;
+            case "DEC":
+                return 12;
+            default:
+                return 1;
+        }
     }
 }

@@ -38,6 +38,14 @@
         android:textColor="@color/darkPurple"
         android:textStyle="bold"/>
 
+    <TextView
+        android:id="@+id/text_view_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/appointment_status"
+        android:textColor="@color/darkPurple"
+        android:textStyle="bold"/>
+
     <!-- Add more fields as necessary -->
 
     <LinearLayout

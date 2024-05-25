@@ -4,14 +4,14 @@ import java.util.List;
 
 public class Schedule {
     private String doctorID;
-    private String week; // Format: YYYY-WW (Year-Week)
+    private String month; // Format: YYYY-WW (Year-Week)
     private List<String> availableDays;
 
     public Schedule() { }
 
-    public Schedule(String doctorID, String week, List<String> availableDays) {
+    public Schedule(String doctorID, String month, List<String> availableDays) {
         this.doctorID = doctorID;
-        this.week = week;
+        this.month = month;
         this.availableDays = availableDays;
     }
 
@@ -24,12 +24,12 @@ public class Schedule {
         this.doctorID = doctorID;
     }
 
-    public String getWeek() {
-        return week;
+    public String getMonth() {
+        return month;
     }
 
-    public void setWeek(String week) {
-        this.week = week;
+    public void setMonth(String week) {
+        this.month = week;
     }
 
     public List<String> getAvailableDays() {

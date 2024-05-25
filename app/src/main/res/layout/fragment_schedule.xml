@@ -13,7 +13,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/rounded_bk"
-        android:text="@string/select_week"
+        android:text="@string/select_month"
         android:textStyle="bold"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
@@ -21,145 +21,18 @@
         android:textColor="@color/darkPurple"
         android:padding="10dp" />
 
-    <LinearLayout
-        android:id="@+id/layoutMonday"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginEnd="40dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/rounded_bk"
-        android:padding="8dp">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <CheckBox
-            android:id="@+id/checkBoxMonday"
-            android:layout_width="282dp"
+        <LinearLayout
+            android:id="@+id/layoutDays"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/monday"
-            android:textColor="@color/darkPurple"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:orientation="vertical" />
 
-    <LinearLayout
-        android:id="@+id/layoutTuesday"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginStart="40dp"
-        android:background="@drawable/rounded_bk"
-        android:padding="8dp">
-
-        <CheckBox
-            android:id="@+id/checkBoxTuesday"
-            android:layout_width="279dp"
-            android:layout_height="wrap_content"
-            android:text="@string/tuesday"
-            android:textColor="@color/darkPurple"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutWednesday"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginStart="40dp"
-        android:background="@drawable/rounded_bk"
-        android:padding="8dp">
-
-        <CheckBox
-            android:id="@+id/checkBoxWednesday"
-            android:layout_width="274dp"
-            android:layout_height="wrap_content"
-            android:text="@string/wednesday"
-            android:textColor="@color/darkPurple"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutThursday"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginStart="40dp"
-        android:background="@drawable/rounded_bk"
-        android:padding="8dp">
-
-        <CheckBox
-            android:id="@+id/checkBoxThursday"
-            android:layout_width="282dp"
-            android:layout_height="wrap_content"
-            android:text="@string/thursday"
-            android:textColor="@color/darkPurple"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutFriday"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginStart="40dp"
-        android:background="@drawable/rounded_bk"
-        android:padding="8dp">
-
-        <CheckBox
-            android:id="@+id/checkBoxFriday"
-            android:layout_width="280dp"
-            android:layout_height="wrap_content"
-            android:text="@string/friday"
-            android:textColor="@color/darkPurple"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutSaturday"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginStart="40dp"
-        android:background="@drawable/rounded_bk"
-        android:padding="8dp">
-
-        <CheckBox
-            android:id="@+id/checkBoxSaturday"
-            android:layout_width="282dp"
-            android:layout_height="wrap_content"
-            android:text="@string/saturday"
-            android:textColor="@color/darkPurple"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutSunday"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginStart="40dp"
-        android:background="@drawable/rounded_bk"
-        android:padding="8dp">
-
-        <CheckBox
-            android:id="@+id/checkBoxSunday"
-            android:layout_width="283dp"
-            android:layout_height="wrap_content"
-            android:text="@string/sunday"
-            android:textColor="@color/darkPurple"
-            android:textStyle="bold" />
-    </LinearLayout>
+    </ScrollView>
 
     <Button
         android:id="@+id/btnSaveSchedule"
@@ -178,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
         android:layout_marginEnd="40dp"
-        android:text="@string/you_have_already_done_your_schedule_for_the_week"
+        android:text="@string/you_have_already_done_your_schedule_for_the_month"
         android:textColor="@color/lightPurple"
         android:textStyle="bold"
         android:gravity="center"
