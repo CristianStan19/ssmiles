@@ -85,6 +85,11 @@ public class AppointmentsFragment extends Fragment implements OnCancelAppointmen
         updateAppointmentInFirestore(appointment); // Call a new method to update Firestore
     }
 
+    @Override
+    public void onRescheduleAppointment(Appointment appointment) {
+
+    }
+
     private void updateAppointmentInFirestore(Appointment appointment) {
         db.collection("appointments")
                 .document(appointment.getAppointmentId()) // Assuming Appointment has an id field

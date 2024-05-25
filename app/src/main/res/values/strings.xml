@@ -68,4 +68,6 @@
     <string name="sunday">Sunday</string>
     <string name="schedule_for_the_week">Schedule for the week</string>
     <string name="you_have_already_done_your_schedule_for_the_week">You have already done your schedule for the week</string>
+    <string name="reschedule">Reschedule</string>
+    <string name="patient">Patient:</string>
 </resources>

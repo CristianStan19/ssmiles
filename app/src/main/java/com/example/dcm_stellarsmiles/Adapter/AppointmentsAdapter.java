@@ -47,7 +47,7 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
         holder.btnCancelAppointment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (appointment.getAppointmentStatus().equals("ongoing")) {
+                if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {
                     listener.onCancelAppointment(appointment);
                 } else {
                     // Appointment is not ongoing, show a message or perform other action

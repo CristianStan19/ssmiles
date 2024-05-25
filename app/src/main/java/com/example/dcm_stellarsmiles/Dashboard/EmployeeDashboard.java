@@ -21,9 +21,9 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.dcm_stellarsmiles.Auth.LogIn;
 import com.example.dcm_stellarsmiles.Fragments.AboutUsFragment;
-import com.example.dcm_stellarsmiles.Fragments.DoctorAppointmentsFragment;
 import com.example.dcm_stellarsmiles.Fragments.ProfileFragment;
 import com.example.dcm_stellarsmiles.R;
+import com.example.dcm_stellarsmiles.Schedule.DoctorAppointmentsFragment;
 import com.example.dcm_stellarsmiles.Schedule.ScheduleFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;

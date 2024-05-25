@@ -10,32 +10,32 @@ public class Constants {
     public static final String APP_COMPLETED = "completed";
 
     // General Dentist Appointments
-    public static final String ROUTINE_CHECKUP = "Routine Checkup"; // General Dentist
-    public static final String TOOTH_EXTRACTION = "Tooth Extraction"; // General Dentist
-    public static final String DENTAL_FILLING = "Dental Filling"; // General Dentist
-    public static final String TEETH_CLEANING = "Teeth Cleaning"; // General Dentist
-    public static final String X_RAY = "X-Ray"; // General Dentist
+    public static final String ROUTINE_CHECKUP = "Routine Checkup";
+    public static final String TOOTH_EXTRACTION = "Tooth Extraction";
+    public static final String DENTAL_FILLING = "Dental Filling";
+    public static final String TEETH_CLEANING = "Teeth Cleaning";
+    public static final String X_RAY = "X-Ray";
 
     // Endodontist Appointments
-    public static final String ROOT_CANAL_TREATMENT = "Root Canal Treatment"; // Endodontist
-    public static final String APICOECTOMY = "Apicoectomy"; // Endodontist
-    public static final String PULPOTOMY = "Pulpotomy"; // Endodontist
-    public static final String ENDODONTIC_REASSESSMENT = "Endodontic Reassessment"; // Endodontist
-    public static final String INTERNAL_BLEACHING = "Internal Bleaching"; // Endodontist
+    public static final String ROOT_CANAL_TREATMENT = "Root Canal Treatment";
+    public static final String APICOECTOMY = "Apicoectomy";
+    public static final String PULPOTOMY = "Pulpotomy";
+    public static final String ENDODONTIC_REASSESSMENT = "Endodontic Reassessment";
+    public static final String INTERNAL_BLEACHING = "Internal Bleaching";
 
     // Orthodontist Appointments
-    public static final String BRACES_INSTALLATION = "Braces Installation"; // Orthodontist
-    public static final String BRACES_ADJUSTMENT = "Braces Adjustment"; // Orthodontist
-    public static final String RETAINER_INSTALLATION = "Retainer Installation"; // Orthodontist
-    public static final String RETAINER_ADJUSTMENT = "Retainer Adjustment"; // Orthodontist
-    public static final String INVISALIGN_TREATMENT = "Invisalign Treatment"; // Orthodontist
+    public static final String BRACES_INSTALLATION = "Braces Installation";
+    public static final String BRACES_ADJUSTMENT = "Braces Adjustment";
+    public static final String RETAINER_INSTALLATION = "Retainer Installation";
+    public static final String RETAINER_ADJUSTMENT = "Retainer Adjustment";
+    public static final String INVISALIGN_TREATMENT = "Invisalign Treatment";
 
     // Periodontist Appointments
-    public static final String GUM_TREATMENT = "Gum Treatment"; // Periodontist
-    public static final String DENTAL_IMPLANT = "Dental Implant"; // Periodontist
-    public static final String BONE_GRAFTING = "Bone Grafting"; // Periodontist
-    public static final String GUM_GRAFTING = "Gum Grafting"; // Periodontist
-    public static final String SCALING_AND_ROOT_PLANING = "Scaling and Root Planing"; // Periodontist
+    public static final String GUM_TREATMENT = "Gum Treatment";
+    public static final String DENTAL_IMPLANT = "Dental Implant";
+    public static final String BONE_GRAFTING = "Bone Grafting";
+    public static final String GUM_GRAFTING = "Gum Grafting";
+    public static final String SCALING_AND_ROOT_PLANING = "Scaling and Root Planing";
 
     // Costs for General Dentist Appointments
     public static final int DEFAULT_COST_ROUTINE_CHECKUP = 50;
@@ -66,6 +66,8 @@ public class Constants {
     public static final int DEFAULT_COST_SCALING_AND_ROOT_PLANING = 200;
 
     public static final Map<String, Integer> APPOINTMENT_COSTS = new HashMap<>();
+    public static final Map<String, String> APPOINTMENT_SPECIALIZATIONS = new HashMap<>();
+
     static {
         // General Dentist Appointments
         APPOINTMENT_COSTS.put(ROUTINE_CHECKUP, DEFAULT_COST_ROUTINE_CHECKUP);
@@ -94,6 +96,34 @@ public class Constants {
         APPOINTMENT_COSTS.put(BONE_GRAFTING, DEFAULT_COST_BONE_GRAFTING);
         APPOINTMENT_COSTS.put(GUM_GRAFTING, DEFAULT_COST_GUM_GRAFTING);
         APPOINTMENT_COSTS.put(SCALING_AND_ROOT_PLANING, DEFAULT_COST_SCALING_AND_ROOT_PLANING);
+
+        // General Dentist Specializations
+        APPOINTMENT_SPECIALIZATIONS.put(ROUTINE_CHECKUP, "General Dentist");
+        APPOINTMENT_SPECIALIZATIONS.put(TOOTH_EXTRACTION, "General Dentist");
+        APPOINTMENT_SPECIALIZATIONS.put(DENTAL_FILLING, "General Dentist");
+        APPOINTMENT_SPECIALIZATIONS.put(TEETH_CLEANING, "General Dentist");
+        APPOINTMENT_SPECIALIZATIONS.put(X_RAY, "General Dentist");
+
+        // Endodontist Specializations
+        APPOINTMENT_SPECIALIZATIONS.put(ROOT_CANAL_TREATMENT, "Endodontist");
+        APPOINTMENT_SPECIALIZATIONS.put(APICOECTOMY, "Endodontist");
+        APPOINTMENT_SPECIALIZATIONS.put(PULPOTOMY, "Endodontist");
+        APPOINTMENT_SPECIALIZATIONS.put(ENDODONTIC_REASSESSMENT, "Endodontist");
+        APPOINTMENT_SPECIALIZATIONS.put(INTERNAL_BLEACHING, "Endodontist");
+
+        // Orthodontist Specializations
+        APPOINTMENT_SPECIALIZATIONS.put(BRACES_INSTALLATION, "Orthodontist");
+        APPOINTMENT_SPECIALIZATIONS.put(BRACES_ADJUSTMENT, "Orthodontist");
+        APPOINTMENT_SPECIALIZATIONS.put(RETAINER_INSTALLATION, "Orthodontist");
+        APPOINTMENT_SPECIALIZATIONS.put(RETAINER_ADJUSTMENT, "Orthodontist");
+        APPOINTMENT_SPECIALIZATIONS.put(INVISALIGN_TREATMENT, "Orthodontist");
+
+        // Periodontist Specializations
+        APPOINTMENT_SPECIALIZATIONS.put(GUM_TREATMENT, "Periodontist");
+        APPOINTMENT_SPECIALIZATIONS.put(DENTAL_IMPLANT, "Periodontist");
+        APPOINTMENT_SPECIALIZATIONS.put(BONE_GRAFTING, "Periodontist");
+        APPOINTMENT_SPECIALIZATIONS.put(GUM_GRAFTING, "Periodontist");
+        APPOINTMENT_SPECIALIZATIONS.put(SCALING_AND_ROOT_PLANING, "Periodontist");
     }
 
     public static final float LOYALITY_DISCOUNT = 0.1f;

@@ -216,7 +216,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         TextView textCost = dialog.findViewById(R.id.textCost);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         consultationSpinner = dialog.findViewById(R.id.consultationSpinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new ArrayList<>(APPOINTMENT_COSTS.keySet()));
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>(Constants.APPOINTMENT_COSTS.keySet()));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         consultationSpinner.setAdapter(adapter);
         consultationDoctor = dialog.findViewById(R.id.consultationDoctor);
@@ -225,10 +225,29 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         consultationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // Handle item selection here
                 String type = (String) parent.getItemAtPosition(position);
                 int cost = Constants.APPOINTMENT_COSTS.getOrDefault(type, 0);
                 textCost.setText(String.valueOf(cost));
+
+                String specialization = Constants.APPOINTMENT_SPECIALIZATIONS.get(type);
+                if (specialization != null) {
+                    doctorsRef.whereEqualTo("specialization", specialization).get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    List<String> doctorNames = new ArrayList<>();
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        String doctorName = document.getString("name");
+                                        if (doctorName != null) {
+                                            doctorNames.add(doctorName);
+                                        }
+                                    }
+                                    ArrayAdapter<String> doctorAdapter = new ArrayAdapter<>(Dashboard.this, android.R.layout.simple_spinner_dropdown_item, doctorNames);
+                                    consultationDoctor.setAdapter(doctorAdapter);
+                                } else {
+                                    Log.w("Dashboard", "Error getting doctors: ", task.getException());
+                                }
+                            });
+                }
             }
 
             @Override
@@ -237,33 +256,10 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             }
         });
 
-        doctorsRef.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            List<String> doctorNames = new ArrayList<>(); // List to store doctor names
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String doctorName = document.getString("name");
-                                if (doctorName != null) {
-                                    doctorNames.add(doctorName);
-                                }
-                            }
-                            ArrayAdapter<String> adapter = new ArrayAdapter<String>(Dashboard.this, android.R.layout.simple_spinner_dropdown_item, doctorNames);
-                            consultationDoctor.setAdapter(adapter);
-                        } else {
-                            Log.w("Dashboard", "Error getting doctors: ", task.getException());
-                        }
-                    }
-                });
-
-        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                month = month +1;
-                String date = makeDateString(dayOfMonth,month,year);
-                btnDate.setText(date);
-            }
+        DatePickerDialog.OnDateSetListener dateSetListener = (view, year, month, dayOfMonth) -> {
+            month = month + 1;
+            String date = makeDateString(dayOfMonth, month, year);
+            btnDate.setText(date);
         };
 
         Calendar cal = Calendar.getInstance();
@@ -273,67 +269,47 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
 
         datePickerDialog = new DatePickerDialog(this, dateSetListener, year, month, day);
 
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
 
-        btnSchedule.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                String customerID = user != null ? user.getUid() : null;
+        btnSchedule.setOnClickListener(v -> {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            String customerID = user != null ? user.getUid() : null;
 
-                if (customerID != null) {
-                    DocumentReference customerDocRef = db.collection("customers").document(customerID);
-                    db.runTransaction(new Transaction.Function<Void>() {
-                        @Override
-                        public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                            DocumentSnapshot snapshot = transaction.get(customerDocRef);
-                            Customer customer = snapshot.toObject(Customer.class);
-                            int newVisits = customer.getVisits() + 1;
-                            customer.setVisits(newVisits);
-                            transaction.update(customerDocRef, "visits", newVisits);
-                            String appointmentDate = btnDate.getText().toString();
-                            String Type = consultationSpinner.getSelectedItem().toString();
-                            String Doctor = consultationDoctor.getSelectedItem().toString();
-                            int cost = Integer.parseInt(String.valueOf(textCost.getText()));
-                            if(customer.getVisits() >= Constants.LOYALITY_REQUIRMENT) {
-                                cost = (int) (cost - cost * Constants.LOYALITY_DISCOUNT);
-                            }
-                            Appointment appointment = new Appointment(appointmentDate, Type, Doctor);
-                            appointment.setCost(cost);
-                            appointment.setAppointmentStatus(Constants.APP_ON_GOING);
-                            appointment.setAppointmentId(customerID+customer.getVisits());
-                            db.collection("appointments").document(customerID+customer.getVisits()).set(appointment).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
-                                        dialog.dismiss();
-                                    }
+            if (customerID != null) {
+                DocumentReference customerDocRef = db.collection("customers").document(customerID);
+                db.runTransaction(transaction -> {
+                    DocumentSnapshot snapshot = transaction.get(customerDocRef);
+                    Customer customer = snapshot.toObject(Customer.class);
+                    int newVisits = customer.getVisits() + 1;
+                    customer.setVisits(newVisits);
+                    transaction.update(customerDocRef, "visits", newVisits);
+                    String appointmentDate = btnDate.getText().toString();
+                    String type = consultationSpinner.getSelectedItem().toString();
+                    String doctor = consultationDoctor.getSelectedItem().toString();
+                    int cost = Integer.parseInt(textCost.getText().toString());
+                    if (customer.getVisits() >= Constants.LOYALITY_REQUIRMENT) {
+                        cost = (int) (cost - cost * Constants.LOYALITY_DISCOUNT);
+                    }
+                    Appointment appointment = new Appointment(appointmentDate, type, doctor);
+                    appointment.setCost(cost);
+                    appointment.setAppointmentStatus(Constants.APP_ON_GOING);
+                    appointment.setAppointmentId(customerID + customer.getVisits());
+                    appointment.setPatientName(customer.getFullName());
+                    db.collection("appointments").document(appointment.getAppointmentId()).set(appointment)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    dialog.dismiss();
                                 }
                             });
-
-
-
-                            return null;
-                        }
-                    }).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                dialog.dismiss();
-                            } else {
-                                // Handle error during update (optional)
-                            }
-                        }
-                    });
-                }
+                    return null;
+                }).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        dialog.dismiss();
+                    } else {
+                        // Handle error during update (optional)
+                    }
+                });
             }
-
-
         });
 
         dialog.show();
@@ -342,6 +318,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         dialog.getWindow().getAttributes().windowAnimations = androidx.appcompat.R.style.Animation_AppCompat_Dialog;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
     }
+
 
     private String getTodaysDate() {
         Calendar cal = Calendar.getInstance();
