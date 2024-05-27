@@ -1,5 +1,4 @@
 package com.example.dcm_stellarsmiles.Adapter;
-
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -17,7 +16,12 @@ import com.example.dcm_stellarsmiles.Intefaces.OnCancelAppointmentClickListener;
 import com.example.dcm_stellarsmiles.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppointmentsAdapter.AppointmentViewHolder> {
@@ -26,12 +30,23 @@ public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppoin
     private OnCancelAppointmentClickListener cancelListener;
     private OnCancelAppointmentClickListener rescheduleListener;
     private FirebaseFirestore db;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
 
     public DoctorAppointmentsAdapter(List<Appointment> appointmentList, OnCancelAppointmentClickListener cancelListener, OnCancelAppointmentClickListener rescheduleListener) {
         this.appointmentList = appointmentList;
         this.cancelListener = cancelListener;
         this.rescheduleListener = rescheduleListener;
         this.db = FirebaseFirestore.getInstance();
+        sortAppointments();
+    }
+
+    private void sortAppointments() {
+        Collections.sort(appointmentList, new Comparator<Appointment>() {
+            @Override
+            public int compare(Appointment o1, Appointment o2) {
+                return o1.getAppointmentStatus().compareTo(o2.getAppointmentStatus());
+            }
+        });
     }
 
     @NonNull
@@ -51,6 +66,7 @@ public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppoin
         holder.tvAppCost.setText(String.valueOf(appointment.getCost()));
         holder.tvAppPatient.setText(appointment.getPatientName());
         holder.tvAppStatus.setText(holder.tvAppStatus.getText().toString() + " " + appointment.getAppointmentStatus());
+
         holder.btnCancelAppointment.setOnClickListener(v -> {
             if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {
                 cancelListener.onCancelAppointment(appointment);

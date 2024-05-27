@@ -9,10 +9,12 @@
 
     <ImageView
         android:id="@+id/ivEmployeeImage"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_marginEnd="16dp"
         android:src="@drawable/profile"
+        android:background="@drawable/border"
+        android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -35,7 +37,7 @@
             android:id="@+id/tvEmployeeType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/darkPurple"
-            android:text="Employee Type" />
+            android:text="Employee Type"
+            android:textColor="@color/darkPurple" />
     </LinearLayout>
 </LinearLayout>

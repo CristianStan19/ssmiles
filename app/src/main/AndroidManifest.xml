@@ -15,8 +15,9 @@
         android:theme="@style/Theme.DCM"
         tools:targetApi="31">
         <activity
-            android:name=".Schedule.ScheduleActivity"
-            android:exported="false" />
+            android:name=".Dashboard.ReceptionistDashboard"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".Dashboard.RoleCenterDashboard"
             android:exported="false" />

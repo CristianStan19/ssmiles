@@ -47,6 +47,7 @@ import com.example.dcm_stellarsmiles.Constants.Constants;
 import com.example.dcm_stellarsmiles.Enum.AppointmentStatus;
 import com.example.dcm_stellarsmiles.Fragments.AboutUsFragment;
 import com.example.dcm_stellarsmiles.Fragments.AppointmentsFragment;
+import com.example.dcm_stellarsmiles.Fragments.ConsultationFragment;
 import com.example.dcm_stellarsmiles.Fragments.EmployeeFragment;
 import com.example.dcm_stellarsmiles.Fragments.HomeFragment;
 import com.example.dcm_stellarsmiles.Fragments.PriceFragment;
@@ -69,8 +70,6 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -183,8 +182,8 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             replaceFragment(new HomeFragment());
         } else if (menuItem.getItemId() == R.id.nav_about) {
             replaceFragment(new AboutUsFragment());
-        } else if (menuItem.getItemId() == R.id.nav_share) {
-            replaceFragment(new ShareFragment());
+        } else if (menuItem.getItemId() == R.id.nav_consultation) {
+            replaceFragment(new ConsultationFragment());
         } else if (menuItem.getItemId() == R.id.nav_profile) {
             replaceFragment(new ProfileFragment());
         } else if (menuItem.getItemId() == R.id.nav_logout) {
@@ -268,6 +267,14 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         int day = cal.get(Calendar.DAY_OF_MONTH);
 
         datePickerDialog = new DatePickerDialog(this, dateSetListener, year, month, day);
+
+        // Set the minimum date to today to restrict past dates
+        cal.set(year, month, day);
+        datePickerDialog.getDatePicker().setMinDate(cal.getTimeInMillis());
+
+        // Set the maximum date to the last day of the current month
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        datePickerDialog.getDatePicker().setMaxDate(cal.getTimeInMillis());
 
         cancelButton.setOnClickListener(v -> dialog.dismiss());
 

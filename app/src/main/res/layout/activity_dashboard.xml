@@ -9,23 +9,21 @@
     tools:openDrawer="start"
     tools:context=".Dashboard.Dashboard">
 
-    <!-- CoordinatorLayout as the direct child of DrawerLayout -->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Your Toolbar and FragmentContainer -->
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="16dp"
             android:orientation="vertical">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
+                android:layout_marginTop="20dp"
                 android:background="@color/lightPurple"
                 android:elevation="4dp"
                 android:popupTheme="@style/Theme.DCM"
@@ -34,11 +32,12 @@
             <FrameLayout
                 android:id="@+id/frame_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:paddingBottom="83dp" /> <!-- Adjust this value based on your BottomAppBar height -->
 
         </LinearLayout>
 
-        <!-- BottomAppBar, FloatingActionButton, and BottomNavigationView -->
         <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/bottomAppBar"
             android:layout_width="match_parent"
@@ -75,7 +74,6 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <!-- NavigationView -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"

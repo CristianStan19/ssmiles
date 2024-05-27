@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dcm_stellarsmiles.Classes.DatabaseHelper;
+import com.example.dcm_stellarsmiles.Classes.Employees.Doctor;
 import com.example.dcm_stellarsmiles.Classes.Employees.Employee;
 import com.example.dcm_stellarsmiles.R;
 
@@ -37,7 +39,65 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.Employ
         Employee employee = employees.get(position);
         holder.tvEmployeeName.setText(employee.getName());
         holder.tvEmployeeType.setText(employee.getPosition());
-        holder.ivEmployeeImage.setImageDrawable(context.getResources().getDrawable(R.drawable.profile)); // Set a default image
+        DatabaseHelper dbHelper = new DatabaseHelper();
+        switch (employee.getPosition()) {
+            case "Doctor":
+                dbHelper.getDoctorSpecialization(employee.getName(), new DatabaseHelper.Callback<String>() {
+                    @Override
+                    public void onSuccess(String specialization) {
+                        holder.tvEmployeeType.setText(specialization);
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        holder.tvEmployeeType.setText("Specialization not found");
+                    }
+                });
+                break;
+            case "Assistant":
+                dbHelper.getAssistantDepartment(employee.getName(), new DatabaseHelper.Callback<String>() {
+                    @Override
+                    public void onSuccess(String department) {
+                        holder.tvEmployeeType.setText(department);
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        holder.tvEmployeeType.setText("Department not found");
+                    }
+                });
+                break;
+            case "Receptionist":
+                holder.tvEmployeeType.setVisibility(View.GONE);
+                break;
+            default:
+                holder.tvEmployeeType.setText(employee.getPosition());
+                break;
+        }
+        switch (employee.getName()) {
+            case "Mihai Dorcea":
+                holder.ivEmployeeImage.setImageDrawable(context.getDrawable(R.drawable.doctor1));
+                break;
+            case "Ana Maria Ionescu":
+                holder.ivEmployeeImage.setImageDrawable(context.getDrawable(R.drawable.doctor5));
+                break;
+            case "Mircea Alexandru":
+                holder.ivEmployeeImage.setImageDrawable(context.getDrawable(R.drawable.doctor3));
+                break;
+            case "Andrei Popescu":
+                holder.ivEmployeeImage.setImageDrawable(context.getDrawable(R.drawable.doctor4));
+                break;
+            case "Mihai Popa":
+                holder.ivEmployeeImage.setImageDrawable(context.getDrawable(R.drawable.assistant4));
+                break;
+            case "Mihaela Ivan":
+                holder.ivEmployeeImage.setImageDrawable(context.getDrawable(R.drawable.receptionist1));
+                break;
+            default:
+                // Set default image if no case matches
+                holder.ivEmployeeImage.setImageDrawable(context.getDrawable(R.drawable.profile));
+                break;
+        }
     }
 
     @Override

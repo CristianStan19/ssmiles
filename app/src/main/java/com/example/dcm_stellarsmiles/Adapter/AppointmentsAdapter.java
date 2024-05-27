@@ -15,17 +15,32 @@ import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
 import com.example.dcm_stellarsmiles.Intefaces.OnCancelAppointmentClickListener;
 import com.example.dcm_stellarsmiles.R;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapter.AppointmentViewHolder> {
     private List<Appointment> appointmentList;
     private OnCancelAppointmentClickListener listener;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
 
     public AppointmentsAdapter(List<Appointment> appointmentList, OnCancelAppointmentClickListener listener) {
         this.appointmentList = appointmentList;
         this.listener = listener;
+        sortAppointments();
     }
 
+    private void sortAppointments() {
+        Collections.sort(appointmentList, new Comparator<Appointment>() {
+            @Override
+            public int compare(Appointment o1, Appointment o2) {
+                return o1.getAppointmentStatus().compareTo(o2.getAppointmentStatus());
+            }
+        });
+    }
 
     @NonNull
     @Override
@@ -44,18 +59,13 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
         holder.tvAppDoctor.setText(String.format("%s %s", context.getString(R.string.doctor), appointment.getDoctor()));
         holder.tvAppCost.setText(String.format("%s %s", context.getString(R.string.appointment_cost), appointment.getCost()));
 
-        holder.btnCancelAppointment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {
-                    listener.onCancelAppointment(appointment);
-                } else {
-                    // Appointment is not ongoing, show a message or perform other action
-                    Toast.makeText(v.getContext(), "Cannot cancel appointment. Status is not ongoing.", Toast.LENGTH_SHORT).show();
-                }
+        holder.btnCancelAppointment.setOnClickListener(v -> {
+            if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {
+                listener.onCancelAppointment(appointment);
+            } else {
+                Toast.makeText(v.getContext(), "Cannot cancel appointment. Status is not ongoing.", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     @Override
@@ -77,4 +87,3 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
         }
     }
 }
-

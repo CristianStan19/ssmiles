@@ -14,9 +14,9 @@
             android:icon="@drawable/profile"
             android:title="@string/profile"/>
         <item
-            android:id="@+id/nav_share"
+            android:id="@+id/nav_consultation"
             android:icon="@drawable/share"
-            android:title="@string/share"/>
+            android:title="@string/consultation"/>
         <item
             android:id="@+id/nav_about"
             android:icon="@drawable/about_us"

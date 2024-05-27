@@ -3,7 +3,69 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:layout_marginTop="100dp">
+    android:layout_marginTop="40dp"
+    android:background="@color/midPurple"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_employee"
+        android:textColor="@color/darkPurple"
+        android:textStyle="bold"
+        android:textSize="30sp"
+        />
+    <Spinner
+        android:id="@+id/spinner_employee_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:entries="@array/employee_types" />
+
+    <EditText
+        android:id="@+id/edit_text_name"
+        android:layout_width="match_parent"
+        android:textColorHint="@color/lightPurple"
+        android:layout_height="wrap_content"
+        android:hint="@string/full_name" />
+
+    <EditText
+        android:id="@+id/edit_text_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColorHint="@color/lightPurple"
+        android:hint="@string/phone_number" />
+
+    <EditText
+        android:id="@+id/edit_text_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColorHint="@color/lightPurple"
+        android:hint="@string/email_address" />
+
+    <EditText
+        android:id="@+id/edit_text_specialization_department"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColorHint="@color/lightPurple"
+        android:hint="@string/specialization_or_department"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/button_add"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/darkPurple"
+        android:text="@string/add_employee" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/delete_employee"
+        android:textColor="@color/darkPurple"
+        android:textStyle="bold"
+        android:layout_marginTop="30dp"
+        android:textSize="30sp"/>
 
     <Spinner
         android:id="@+id/spinner_doctors"
@@ -23,15 +85,11 @@
         android:layout_height="wrap_content"
         android:prompt="@string/receptionists"/>
 
-    <Button
-        android:id="@+id/button_add"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/add_employee"/>
 
     <Button
         android:id="@+id/button_delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/delete_selected"/>
+        android:textColor="@color/darkPurple"
+        android:text="@string/delete_selected" />
 </LinearLayout>
