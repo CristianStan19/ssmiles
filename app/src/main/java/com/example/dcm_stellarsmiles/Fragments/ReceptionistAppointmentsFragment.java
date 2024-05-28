@@ -98,12 +98,39 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(getContext(), "Appointment " + status, Toast.LENGTH_SHORT).show();
+                        if ("completed".equals(status)) {
+                            incrementCustomerVisits(appointment.getPatientName());
+                        }
                         adapter.notifyDataSetChanged();
                         if (notify) {
                             sendNotification(appointment);
                         }
                     } else {
                         Toast.makeText(getContext(), "Failed to update appointment", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void incrementCustomerVisits(String patientName) {
+        db.collection("customers")
+                .whereEqualTo("fullName", patientName)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                        String customerId = document.getId();
+                        long currentVisits = document.getLong("visits") != null ? document.getLong("visits") : 0;
+                        db.collection("customers").document(customerId)
+                                .update("visits", currentVisits + 1)
+                                .addOnCompleteListener(updateTask -> {
+                                    if (updateTask.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Customer visits incremented", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(getContext(), "Failed to increment customer visits", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    } else {
+                        Log.w("ReceptionistFragment", "Customer not found for appointment: " + patientName);
                     }
                 });
     }

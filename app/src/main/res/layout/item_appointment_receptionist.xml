@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Patient Name"
+        android:textColor="@color/darkPurple"
         android:textStyle="bold"
         android:textSize="16sp"/>
 
@@ -17,6 +18,7 @@
         android:id="@+id/rec_text_view_appointment_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/darkPurple"
         android:text="Date"
         android:textSize="14sp"/>
 
@@ -24,6 +26,7 @@
         android:id="@+id/rec_text_view_type"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/darkPurple"
         android:text="Type"
         android:textSize="14sp"/>
 
@@ -31,12 +34,14 @@
         android:id="@+id/rec_text_view_cost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/darkPurple"
         android:text="Cost"
         android:textSize="14sp"/>
 
     <TextView
         android:id="@+id/rec_text_view_status"
         android:layout_width="match_parent"
+        android:textColor="@color/darkPurple"
         android:layout_height="wrap_content"
         android:text="Status"
         android:textSize="14sp"/>
@@ -45,17 +50,20 @@
         android:id="@+id/rec_button_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/lightPurple"
         android:text="Cancel" />
 
     <Button
         android:id="@+id/rec_button_reschedule"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/lightPurple"
         android:text="Reschedule" />
 
     <Button
         android:id="@+id/rec_button_complete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/lightPurple"
         android:text="Complete" />
 </LinearLayout>

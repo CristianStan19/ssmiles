@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@color/midPurple">
+    android:background="@color/white">
 
     <Button
         android:id="@+id/btnDate"
@@ -18,7 +18,7 @@
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
         android:textSize="16sp"
-        android:textColor="@color/darkPurple"
+        android:textColor="@color/lightPurple"
         android:padding="10dp" />
 
     <ScrollView
@@ -42,7 +42,7 @@
         android:layout_marginStart="80dp"
         android:layout_marginEnd="80dp"
         android:text="@string/save_schedule"
-        android:textColor="@color/darkPurple"
+        android:textColor="@color/lightPurple"
         android:padding="10dp" />
 
     <TextView
@@ -52,7 +52,7 @@
         android:layout_marginStart="40dp"
         android:layout_marginEnd="40dp"
         android:text="@string/you_have_already_done_your_schedule_for_the_month"
-        android:textColor="@color/lightPurple"
+        android:textColor="@color/darkPurple"
         android:textStyle="bold"
         android:gravity="center"
         android:visibility="gone"/>

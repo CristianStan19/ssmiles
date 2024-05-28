@@ -7,7 +7,7 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/Appointments_Rec"
-            android:icon="@drawable/profile"
+            android:icon="@drawable/event"
             android:title="@string/appointments"/>
 
     </group>

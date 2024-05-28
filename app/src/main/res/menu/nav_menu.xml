@@ -15,7 +15,7 @@
             android:title="@string/profile"/>
         <item
             android:id="@+id/nav_consultation"
-            android:icon="@drawable/share"
+            android:icon="@drawable/consultation"
             android:title="@string/consultation"/>
         <item
             android:id="@+id/nav_about"

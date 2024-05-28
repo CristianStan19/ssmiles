@@ -10,7 +10,7 @@
     <item
         android:id="@+id/Appointments"
         android:title="@string/appointments"
-        android:icon="@drawable/home"
+        android:icon="@drawable/event"
         />
 
     <item
@@ -21,10 +21,10 @@
     <item
         android:id="@+id/employees"
         android:title="@string/employees"
-        android:icon="@drawable/home" />
+        android:icon="@drawable/employees" />
     <item
         android:id="@+id/price"
         android:title="@string/prices"
-        android:icon="@drawable/home" />
+        android:icon="@drawable/prices" />
 
 </menu>

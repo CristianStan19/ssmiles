@@ -11,7 +11,7 @@
             android:title="@string/schedule"/>
         <item
             android:id="@+id/Appointments_Doctor"
-            android:icon="@drawable/profile"
+            android:icon="@drawable/event"
             android:title="@string/appointments"/>
 
     </group>

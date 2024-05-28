@@ -287,9 +287,6 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 db.runTransaction(transaction -> {
                     DocumentSnapshot snapshot = transaction.get(customerDocRef);
                     Customer customer = snapshot.toObject(Customer.class);
-                    int newVisits = customer.getVisits() + 1;
-                    customer.setVisits(newVisits);
-                    transaction.update(customerDocRef, "visits", newVisits);
                     String appointmentDate = btnDate.getText().toString();
                     String type = consultationSpinner.getSelectedItem().toString();
                     String doctor = consultationDoctor.getSelectedItem().toString();
