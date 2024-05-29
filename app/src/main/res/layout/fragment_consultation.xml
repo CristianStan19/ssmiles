@@ -116,6 +116,7 @@
             android:layout_height="wrap_content"
             android:text="Submit"
             android:textColor="@color/lightPurple"
+            android:background="@drawable/darkprpl_rounded_bk"
             android:layout_marginTop="16dp"/>
 
         <TextView

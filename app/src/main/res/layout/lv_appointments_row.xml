@@ -60,10 +60,10 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="36dp"
         android:layout_marginBottom="20dp"
-        android:background="@color/midPurple"
+        android:background="@color/darkPurple"
         android:padding="10sp"
         android:text="@string/cancel"
-        android:textColor="@android:color/white"
+        android:textColor="@color/lightPurple"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

@@ -12,7 +12,7 @@
         android:text="Patient Name"
         android:textColor="@color/darkPurple"
         android:textStyle="bold"
-        android:textSize="16sp"/>
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/rec_text_view_appointment_date"
@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/darkPurple"
         android:text="Date"
-        android:textSize="14sp"/>
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/rec_text_view_type"
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/darkPurple"
         android:text="Type"
-        android:textSize="14sp"/>
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/rec_text_view_cost"
@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/darkPurple"
         android:text="Cost"
-        android:textSize="14sp"/>
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/rec_text_view_status"
@@ -44,26 +44,39 @@
         android:textColor="@color/darkPurple"
         android:layout_height="wrap_content"
         android:text="Status"
-        android:textSize="14sp"/>
+        android:textSize="14sp" />
 
-    <Button
-        android:id="@+id/rec_button_cancel"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/lightPurple"
-        android:text="Cancel" />
+        android:layout_marginTop="8dp">
 
-    <Button
-        android:id="@+id/rec_button_reschedule"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/lightPurple"
-        android:text="Reschedule" />
+        <Button
+            android:id="@+id/rec_button_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/lightPurple"
+            android:background="@drawable/darkprpl_rounded_bk"
+            android:text="Cancel"
+            android:layout_alignParentStart="true" />
 
-    <Button
-        android:id="@+id/rec_button_complete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/lightPurple"
-        android:text="Complete" />
+        <Button
+            android:id="@+id/rec_button_reschedule"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/darkprpl_rounded_bk"
+            android:text="Reschedule"
+            android:textColor="@color/lightPurple"
+            android:layout_alignParentEnd="true" />
+
+        <Button
+            android:id="@+id/rec_button_complete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/rec_button_cancel"
+            android:layout_marginTop="13dp"
+            android:background="@drawable/darkprpl_rounded_bk"
+            android:text="Complete"
+            android:textColor="@color/lightPurple" />
+    </RelativeLayout>
 </LinearLayout>

@@ -134,6 +134,7 @@
         android:layout_marginStart="1dp"
         android:layout_marginTop="84dp"
         android:text="@string/schedule"
+        android:background="@drawable/darkprpl_rounded_bk"
         android:textColor="@color/lightPurple"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"

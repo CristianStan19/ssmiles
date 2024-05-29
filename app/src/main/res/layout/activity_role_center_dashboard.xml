@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:text="@string/add_employee"
         android:textColor="@color/darkPurple"
+        android:layout_marginStart="30dp"
         android:textStyle="bold"
         android:textSize="30sp"
         />
@@ -43,7 +44,6 @@
         android:id="@+id/edit_text_specialization_department"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/darkPurple"
         android:hint="@string/specialization_or_department"
         android:visibility="gone" />
 
@@ -52,6 +52,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/lightPurple"
+        android:background="@drawable/darkprpl_rounded_bk"
+        android:layout_marginStart="60dp"
+        android:layout_marginEnd="60dp"
         android:text="@string/add_employee" />
 
     <TextView
@@ -61,6 +64,7 @@
         android:textColor="@color/darkPurple"
         android:textStyle="bold"
         android:layout_marginTop="30dp"
+        android:layout_marginStart="30dp"
         android:textSize="30sp"/>
 
     <Spinner
@@ -86,6 +90,9 @@
         android:id="@+id/button_delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/darkprpl_rounded_bk"
         android:textColor="@color/lightPurple"
+        android:layout_marginStart="60dp"
+        android:layout_marginEnd="60dp"
         android:text="@string/delete_selected" />
 </LinearLayout>

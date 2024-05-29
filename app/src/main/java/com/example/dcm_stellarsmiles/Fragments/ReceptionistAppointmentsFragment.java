@@ -11,23 +11,29 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.dcm_stellarsmiles.Adapter.ReceptionistAppointmentsAdapter;
 import com.example.dcm_stellarsmiles.Adapter.SpaceItemDecoration;
 import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
+import com.example.dcm_stellarsmiles.Constants.Constants;
 import com.example.dcm_stellarsmiles.Intefaces.OnAppointmentActionListener;
 import com.example.dcm_stellarsmiles.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class ReceptionistAppointmentsFragment extends Fragment implements OnAppointmentActionListener {
@@ -36,6 +42,13 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
     private RecyclerView recyclerViewAppointments;
     private ReceptionistAppointmentsAdapter adapter;
     private List<Appointment> appointmentList;
+    private List<Appointment> filteredAppointmentList;
+    private Spinner spinnerCustomers, spinnerStatuses, spinnerAppointmentTypes;
+    private Button btnPickDate;
+    private String selectedCustomer = "All Customers";
+    private String selectedStatus = "All Statuses";
+    private String selectedType = "All Types";
+    private String selectedDate;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,12 +61,46 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
         int spaceHeight = getResources().getDimensionPixelSize(R.dimen.dp_12);
         recyclerViewAppointments.addItemDecoration(new SpaceItemDecoration(spaceHeight));
         appointmentList = new ArrayList<>();
-        adapter = new ReceptionistAppointmentsAdapter(appointmentList, this);
+        filteredAppointmentList = new ArrayList<>();
+        adapter = new ReceptionistAppointmentsAdapter(filteredAppointmentList, this);
         recyclerViewAppointments.setAdapter(adapter);
 
+        spinnerCustomers = view.findViewById(R.id.spinnerCustomers);
+        spinnerStatuses = view.findViewById(R.id.spinnerStatuses);
+        spinnerAppointmentTypes = view.findViewById(R.id.spinnerAppointmentTypes);
+        btnPickDate = view.findViewById(R.id.btnPickDate);
+
+        setupSpinners();
+        setupDatePicker();
+        fetchCustomerNames();
         fetchAppointments();
 
         return view;
+    }
+
+    private void fetchCustomerNames() {
+        db.collection("customers")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            List<String> customerNames = new ArrayList<>();
+                            customerNames.add("All Customers");
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String customerFullName = document.getString("fullName");
+                                if (customerFullName != null) {
+                                    customerNames.add(customerFullName);
+                                }
+                            }
+                            ArrayAdapter<String> customersAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, customerNames);
+                            customersAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            spinnerCustomers.setAdapter(customersAdapter);
+                        } else {
+                            Toast.makeText(getContext(), "Failed to fetch customer names", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     private void fetchAppointments() {
@@ -61,15 +108,169 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        appointmentList.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Appointment appointment = document.toObject(Appointment.class);
                             appointmentList.add(appointment);
                         }
-                        adapter.notifyDataSetChanged();
+                        filterAppointments();
                     } else {
                         Log.w("ReceptionistFragment", "Error getting documents.", task.getException());
                     }
                 });
+    }
+
+    private void setupSpinners() {
+        // Populate spinner with appointment statuses
+        List<String> statuses = new ArrayList<>();
+        statuses.add("All Statuses");
+        statuses.add(Constants.APP_COMPLETED);
+        statuses.add(Constants.APP_ON_GOING);
+        statuses.add(Constants.APP_CANCELED);
+        statuses.add("rescheduled");
+        ArrayAdapter<String> statusesAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, statuses);
+        statusesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerStatuses.setAdapter(statusesAdapter);
+
+        // Populate spinner with appointment types
+        List<String> appointmentTypes = new ArrayList<>(Constants.APPOINTMENT_COSTS.keySet());
+        appointmentTypes.add(0, "All Types");
+        ArrayAdapter<String> appointmentTypesAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, appointmentTypes);
+        appointmentTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerAppointmentTypes.setAdapter(appointmentTypesAdapter);
+
+        spinnerCustomers.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedCustomer = parent.getItemAtPosition(position).toString();
+                filterAppointments();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedCustomer = "All Customers";
+            }
+        });
+
+        spinnerStatuses.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedStatus = parent.getItemAtPosition(position).toString();
+                filterAppointments();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedStatus = "All Statuses";
+            }
+        });
+
+        spinnerAppointmentTypes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedType = parent.getItemAtPosition(position).toString();
+                filterAppointments();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedType = "All Types";
+            }
+        });
+    }
+
+    private void setupDatePicker() {
+        btnPickDate.setOnClickListener(v -> {
+            final Calendar calendar = Calendar.getInstance();
+            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                    (view, year, month, dayOfMonth) -> {
+                        selectedDate = String.format("%02d/%s/%d", dayOfMonth, getMonthFormat(month + 1), year);
+                        filterAppointments();
+                        Toast.makeText(getContext(), "Selected Date: " + selectedDate, Toast.LENGTH_SHORT).show();
+                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+            datePickerDialog.show();
+        });
+    }
+
+
+
+    private String getMonthFormat(int month) {
+        String monthAbbreviation;
+        switch (month) {
+            case 1:
+                monthAbbreviation = "JAN";
+                break;
+            case 2:
+                monthAbbreviation = "FEB";
+                break;
+            case 3:
+                monthAbbreviation = "MAR";
+                break;
+            case 4:
+                monthAbbreviation = "APR";
+                break;
+            case 5:
+                monthAbbreviation = "MAY";
+                break;
+            case 6:
+                monthAbbreviation = "JUN";
+                break;
+            case 7:
+                monthAbbreviation = "JUL";
+                break;
+            case 8:
+                monthAbbreviation = "AUG";
+                break;
+            case 9:
+                monthAbbreviation = "SEP";
+                break;
+            case 10:
+                monthAbbreviation = "OCT";
+                break;
+            case 11:
+                monthAbbreviation = "NOV";
+                break;
+            case 12:
+                monthAbbreviation = "DEC";
+                break;
+            default:
+                monthAbbreviation = "JAN";
+                break;
+        }
+        return monthAbbreviation;
+    }
+
+    private void filterAppointments() {
+        filteredAppointmentList.clear();
+        for (Appointment appointment : appointmentList) {
+            boolean matches = true;
+            if (selectedCustomer != null && !selectedCustomer.equals("All Customers") && !appointment.getPatientName().equals(selectedCustomer)) {
+                matches = false;
+            }
+            if (selectedStatus != null && !selectedStatus.equals("All Statuses") && !appointment.getAppointmentStatus().equals(selectedStatus)) {
+                matches = false;
+            }
+            if (selectedType != null && !selectedType.equals("All Types") && !appointment.getType().equals(selectedType)) {
+                matches = false;
+            }
+            if (selectedDate != null) {
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM/yyyy");
+                    Date date = sdf.parse(selectedDate);
+                    Date appointmentDate = sdf.parse(appointment.getAppointmentDate());
+                    if (!appointmentDate.equals(date)) {
+                        matches = false;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    matches = false;
+                }
+            }
+            if (matches) {
+                filteredAppointmentList.add(appointment);
+            }
+        }
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -170,12 +371,10 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
                         String phoneNumber = document.getString("phoneNumber");
 
                         if (email != null) {
-                            // Send email notification
                             sendEmailNotification(email, appointment);
                         }
 
                         if (phoneNumber != null) {
-                            // Send SMS notification
                             sendSMSNotification(phoneNumber, appointment);
                         }
                     } else {
@@ -185,62 +384,15 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
     }
 
     private void sendEmailNotification(String email, Appointment appointment) {
-        // Implement email sending logic here
         Log.d("Notification", "Sending email to: " + email + " for appointment: " + appointment.getAppointmentId());
     }
 
     private void sendSMSNotification(String phoneNumber, Appointment appointment) {
-        // Implement SMS sending logic here
         Log.d("Notification", "Sending SMS to: " + phoneNumber + " for appointment: " + appointment.getAppointmentId());
     }
 
     private String makeDateString(int dayOfMonth, int month, int year) {
         return dayOfMonth + "/" + getMonthFormat(month) + "/" + year;
     }
-
-    private String getMonthFormat(int month) {
-        String monthAbbreviation;
-        switch (month) {
-            case 1:
-                monthAbbreviation = "JAN";
-                break;
-            case 2:
-                monthAbbreviation = "FEB";
-                break;
-            case 3:
-                monthAbbreviation = "MAR";
-                break;
-            case 4:
-                monthAbbreviation = "APR";
-                break;
-            case 5:
-                monthAbbreviation = "MAY";
-                break;
-            case 6:
-                monthAbbreviation = "JUN";
-                break;
-            case 7:
-                monthAbbreviation = "JUL";
-                break;
-            case 8:
-                monthAbbreviation = "AUG";
-                break;
-            case 9:
-                monthAbbreviation = "SEP";
-                break;
-            case 10:
-                monthAbbreviation = "OCT";
-                break;
-            case 11:
-                monthAbbreviation = "NOV";
-                break;
-            case 12:
-                monthAbbreviation = "DEC";
-                break;
-            default:
-                monthAbbreviation = "JAN";
-                break;
-        }
-        return monthAbbreviation;
-    }
 }
+

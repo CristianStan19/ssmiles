@@ -65,7 +65,9 @@ public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppoin
         holder.tvAppType.setText(appointment.getType());
         holder.tvAppCost.setText(String.valueOf(appointment.getCost()));
         holder.tvAppPatient.setText(appointment.getPatientName());
-        holder.tvAppStatus.setText(holder.tvAppStatus.getText().toString() + " " + appointment.getAppointmentStatus());
+
+        // Set the appointment status correctly
+        holder.tvAppStatus.setText("Status: " + appointment.getAppointmentStatus());
 
         holder.btnCancelAppointment.setOnClickListener(v -> {
             if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {

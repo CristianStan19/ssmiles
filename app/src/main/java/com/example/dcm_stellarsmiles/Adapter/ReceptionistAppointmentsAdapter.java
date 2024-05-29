@@ -1,5 +1,5 @@
 package com.example.dcm_stellarsmiles.Adapter;
-import android.app.DatePickerDialog;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +15,9 @@ import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
 import com.example.dcm_stellarsmiles.Intefaces.OnAppointmentActionListener;
 import com.example.dcm_stellarsmiles.R;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 public class ReceptionistAppointmentsAdapter extends RecyclerView.Adapter<ReceptionistAppointmentsAdapter.AppointmentViewHolder> {
@@ -59,7 +57,7 @@ public class ReceptionistAppointmentsAdapter extends RecyclerView.Adapter<Recept
         holder.tvAppType.setText(appointment.getType());
         holder.tvAppCost.setText(String.valueOf(appointment.getCost()));
         holder.tvAppPatient.setText(appointment.getPatientName());
-        holder.tvAppStatus.setText(appointment.getAppointmentStatus());
+        holder.tvAppStatus.setText("Status: " + appointment.getAppointmentStatus());
 
         holder.btnCancelAppointment.setOnClickListener(v -> {
             if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {

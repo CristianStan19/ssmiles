@@ -141,6 +141,7 @@
         android:layout_width="119dp"
         android:layout_height="66dp"
         android:layout_marginTop="30dp"
+        android:background="@drawable/darkprpl_rounded_bk"
         android:text="@string/register"
         android:textColor="@color/lightPurple"
         app:layout_constraintEnd_toEndOf="parent"

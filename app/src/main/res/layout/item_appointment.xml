@@ -61,16 +61,16 @@
             android:layout_height="wrap_content"
             android:text="@string/cancel"
             android:layout_marginEnd="8dp"
-            android:background="@color/darkPurple"
-            android:textColor="@android:color/white"/>
+            android:background="@drawable/darkprpl_rounded_bk"
+            android:textColor="@color/lightPurple"/>
 
         <Button
             android:id="@+id/button_reschedule"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/reschedule"
-            android:background="@color/darkPurple"
-            android:textColor="@android:color/white"/>
+            android:background="@drawable/darkprpl_rounded_bk"
+            android:textColor="@color/lightPurple"/>
 
     </LinearLayout>
 

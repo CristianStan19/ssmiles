@@ -7,7 +7,7 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/Schedule_Doctor"
-            android:icon="@drawable/home"
+            android:icon="@drawable/schedule"
             android:title="@string/schedule"/>
         <item
             android:id="@+id/Appointments_Doctor"
