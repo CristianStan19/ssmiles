@@ -60,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="36dp"
         android:layout_marginBottom="20dp"
-        android:background="@color/darkPurple"
+        android:background="@drawable/darkprpl_rounded_bk"
         android:padding="10sp"
         android:text="@string/cancel"
         android:textColor="@color/lightPurple"

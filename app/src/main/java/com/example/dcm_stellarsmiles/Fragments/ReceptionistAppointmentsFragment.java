@@ -244,21 +244,35 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
         filteredAppointmentList.clear();
         for (Appointment appointment : appointmentList) {
             boolean matches = true;
-            if (selectedCustomer != null && !selectedCustomer.equals("All Customers") && !appointment.getPatientName().equals(selectedCustomer)) {
-                matches = false;
+
+            if (selectedCustomer != null && !selectedCustomer.equals("All Customers")) {
+                String patientName = appointment.getPatientName();
+                if (patientName == null || !patientName.equals(selectedCustomer)) {
+                    matches = false;
+                }
             }
-            if (selectedStatus != null && !selectedStatus.equals("All Statuses") && !appointment.getAppointmentStatus().equals(selectedStatus)) {
-                matches = false;
+
+            if (selectedStatus != null && !selectedStatus.equals("All Statuses")) {
+                String appointmentStatus = appointment.getAppointmentStatus();
+                if (appointmentStatus == null || !appointmentStatus.equals(selectedStatus)) {
+                    matches = false;
+                }
             }
-            if (selectedType != null && !selectedType.equals("All Types") && !appointment.getType().equals(selectedType)) {
-                matches = false;
+
+            if (selectedType != null && !selectedType.equals("All Types")) {
+                String type = appointment.getType();
+                if (type == null || !type.equals(selectedType)) {
+                    matches = false;
+                }
             }
+
             if (selectedDate != null) {
                 try {
                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM/yyyy");
                     Date date = sdf.parse(selectedDate);
-                    Date appointmentDate = sdf.parse(appointment.getAppointmentDate());
-                    if (!appointmentDate.equals(date)) {
+                    String appointmentDateStr = appointment.getAppointmentDate();
+                    Date appointmentDate = appointmentDateStr != null ? sdf.parse(appointmentDateStr) : null;
+                    if (appointmentDate == null || !appointmentDate.equals(date)) {
                         matches = false;
                     }
                 } catch (Exception e) {
@@ -266,12 +280,14 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
                     matches = false;
                 }
             }
+
             if (matches) {
                 filteredAppointmentList.add(appointment);
             }
         }
         adapter.notifyDataSetChanged();
     }
+
 
     @Override
     public void onCancelAppointment(Appointment appointment) {

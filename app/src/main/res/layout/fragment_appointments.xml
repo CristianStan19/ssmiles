@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/spinnerAppointmentTypes"
         android:layout_margin="16dp"
-        android:background="@color/darkPurple"
+        android:background="@drawable/darkprpl_rounded_bk"
         android:textColor="@color/lightPurple"
         android:text="Pick Date" />
 

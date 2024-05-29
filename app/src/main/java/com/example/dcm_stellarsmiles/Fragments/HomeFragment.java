@@ -127,7 +127,7 @@ public class HomeFragment extends Fragment {
         if (hasOngoingAppointment) {
             tvAppointmentUser.setText("You currently have an ongoing appointment.");
         } else {
-            tvAppointmentUser.setText("You currently don't have any ongoing appointments.");
+            tvAppointmentUser.setText("You don't have an ongoing appointment!");
         }
     }
 
