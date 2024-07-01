@@ -1,4 +1,5 @@
 package com.example.dcm_stellarsmiles.Fragments;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
 import com.example.dcm_stellarsmiles.Constants.Constants;
@@ -25,16 +27,29 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Random;
+
 import javax.annotation.Nullable;
 
 public class HomeFragment extends Fragment {
 
-    private TextView tvWelcomeUser, tvAppointmentUser, tvNotification;
+    private TextView tvWelcomeUser, tvAppointmentUser, tvNotification, tvRandomFact;
     private RelativeLayout rlNotification;
-    private Button btnCloseNotification;
+    private Button btnCloseNotification, btnOpenProductRecommendations, btnOpenConsultation;
     private FirebaseFirestore db;
     private SharedPreferences sharedPreferences;
-
+    private String[] factsArray = {
+            "Tip: Brush your teeth at least twice a day with fluoride toothpaste.",
+            "Tip: Floss daily to remove plaque and food particles between teeth.",
+            "Tip: Replace your toothbrush every three to four months.",
+            "Tip: Visit your dentist regularly for cleanings and check-ups.",
+            "Tip: Limit sugary and acidic foods and drinks.",
+            "Tip: Drink plenty of water to help wash away food particles and bacteria.",
+            "Tip: Use a mouthwash to help reduce plaque and prevent gingivitis.",
+            "Tip: Avoid smoking and tobacco products, which can cause gum disease and oral cancer.",
+            "Tip: Wear a mouthguard when playing sports to protect your teeth.",
+            "Tip: Eat a balanced diet rich in vitamins and minerals to maintain healthy gums and teeth."
+    };
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
@@ -43,6 +58,9 @@ public class HomeFragment extends Fragment {
         tvNotification = view.findViewById(R.id.tvNotification);
         rlNotification = view.findViewById(R.id.rlNotification);
         btnCloseNotification = view.findViewById(R.id.btnCloseNotification);
+        tvRandomFact = view.findViewById(R.id.tvRandomFact);
+        btnOpenProductRecommendations = view.findViewById(R.id.btnOpenProductRecommendations);
+        btnOpenConsultation = view.findViewById(R.id.btnOpenConsultation);
 
         db = FirebaseFirestore.getInstance();
         sharedPreferences = getActivity().getSharedPreferences("dismissed_notifications", Context.MODE_PRIVATE);
@@ -60,6 +78,12 @@ public class HomeFragment extends Fragment {
             rlNotification.setVisibility(View.GONE);
             saveDismissedNotification();
         });
+
+        btnOpenProductRecommendations.setOnClickListener(v -> openFragment(new ProductRecommendationsFragment()));
+        btnOpenConsultation.setOnClickListener(v -> openFragment(new ConsultationFragment()));
+
+        displayRandomFact();
+
         return view;
     }
 
@@ -142,5 +166,18 @@ public class HomeFragment extends Fragment {
             editor.putBoolean(appointmentId, true);
             editor.apply();
         }
+    }
+
+    private void displayRandomFact() {
+        Random random = new Random();
+        int randomIndex = random.nextInt(factsArray.length);
+        tvRandomFact.setText(factsArray[randomIndex]);
+    }
+
+    private void openFragment(Fragment fragment) {
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

@@ -1,10 +1,11 @@
 package com.example.dcm_stellarsmiles.Adapter;
-import android.app.DatePickerDialog;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,12 +17,8 @@ import com.example.dcm_stellarsmiles.Intefaces.OnCancelAppointmentClickListener;
 import com.example.dcm_stellarsmiles.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppointmentsAdapter.AppointmentViewHolder> {
@@ -30,7 +27,6 @@ public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppoin
     private OnCancelAppointmentClickListener cancelListener;
     private OnCancelAppointmentClickListener rescheduleListener;
     private FirebaseFirestore db;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
 
     public DoctorAppointmentsAdapter(List<Appointment> appointmentList, OnCancelAppointmentClickListener cancelListener, OnCancelAppointmentClickListener rescheduleListener) {
         this.appointmentList = appointmentList;
@@ -65,9 +61,10 @@ public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppoin
         holder.tvAppType.setText(appointment.getType());
         holder.tvAppCost.setText(String.valueOf(appointment.getCost()));
         holder.tvAppPatient.setText(appointment.getPatientName());
-
-        // Set the appointment status correctly
         holder.tvAppStatus.setText("Status: " + appointment.getAppointmentStatus());
+        holder.tvAppDuration.setText("Duration: " + appointment.getDuration());
+        holder.tvAppHour.setText("Hour: " + appointment.getTime());
+        holder.ratingBar.setRating(appointment.getRating()); // Set the rating
 
         holder.btnCancelAppointment.setOnClickListener(v -> {
             if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {
@@ -80,7 +77,7 @@ public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppoin
 
         holder.btnRescheduleAppointment.setOnClickListener(v -> {
             if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {
-                showDatePickerDialog(context, appointment);
+                rescheduleListener.onRescheduleAppointment(appointment);
             } else {
                 Toast.makeText(v.getContext(), "Cannot reschedule appointment. Status is not ongoing.", Toast.LENGTH_SHORT).show();
             }
@@ -92,75 +89,14 @@ public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppoin
         return appointmentList.size();
     }
 
-    private void showDatePickerDialog(Context context, Appointment appointment) {
-        final Calendar calendar = Calendar.getInstance();
-        DatePickerDialog datePickerDialog = new DatePickerDialog(context,
-                (view, year, month, dayOfMonth) -> {
-                    String newDate = makeDateString(dayOfMonth, month + 1, year);
-                    appointment.setAppointmentDate(newDate);
-                    updateAppointmentStatus(appointment, "rescheduled");
-                }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-        datePickerDialog.show();
-    }
-
-    private String makeDateString(int dayOfMonth, int month, int year) {
-        return dayOfMonth + "/" + getMonthFormat(month) + "/" + year;
-    }
-
-    private String getMonthFormat(int month) {
-        String monthAbbreviation;
-        switch (month) {
-            case 1:
-                monthAbbreviation = "JAN";
-                break;
-            case 2:
-                monthAbbreviation = "FEB";
-                break;
-            case 3:
-                monthAbbreviation = "MAR";
-                break;
-            case 4:
-                monthAbbreviation = "APR";
-                break;
-            case 5:
-                monthAbbreviation = "MAY";
-                break;
-            case 6:
-                monthAbbreviation = "JUN";
-                break;
-            case 7:
-                monthAbbreviation = "JUL";
-                break;
-            case 8:
-                monthAbbreviation = "AUG";
-                break;
-            case 9:
-                monthAbbreviation = "SEP";
-                break;
-            case 10:
-                monthAbbreviation = "OCT";
-                break;
-            case 11:
-                monthAbbreviation = "NOV";
-                break;
-            case 12:
-                monthAbbreviation = "DEC";
-                break;
-            default:
-                monthAbbreviation = "JAN";
-                break;
-        }
-        return monthAbbreviation;
-    }
-
     private void updateAppointmentStatus(Appointment appointment, String status) {
         appointment.setAppointmentStatus(status);
         db.collection("appointments").document(appointment.getAppointmentId())
-                .update("appointmentDate", appointment.getAppointmentDate(),
-                        "appointmentStatus", appointment.getAppointmentStatus())
+                .update("appointmentStatus", status, "appointmentDate", appointment.getAppointmentDate())
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(db.getApp().getApplicationContext(), "Appointment updated", Toast.LENGTH_SHORT).show();
+                        notifyDataSetChanged();
                     } else {
                         Toast.makeText(db.getApp().getApplicationContext(), "Failed to update appointment", Toast.LENGTH_SHORT).show();
                     }
@@ -168,8 +104,9 @@ public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppoin
     }
 
     public static class AppointmentViewHolder extends RecyclerView.ViewHolder {
-        TextView tvAppPatient, tvAppCost, tvAppType, tvAppDate, tvAppStatus;
+        TextView tvAppPatient, tvAppCost, tvAppType, tvAppDate, tvAppStatus, tvAppDuration, tvAppHour;
         Button btnCancelAppointment, btnRescheduleAppointment;
+        RatingBar ratingBar; // Add RatingBar
 
         public AppointmentViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -178,8 +115,11 @@ public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppoin
             tvAppType = itemView.findViewById(R.id.text_view_type);
             tvAppPatient = itemView.findViewById(R.id.text_view_patient);
             tvAppStatus = itemView.findViewById(R.id.text_view_status);
+            tvAppDuration = itemView.findViewById(R.id.text_view_duration); // Initialize TextView for duration
+            tvAppHour = itemView.findViewById(R.id.text_view_hour); // Initialize TextView for hour
             btnCancelAppointment = itemView.findViewById(R.id.button_cancel);
             btnRescheduleAppointment = itemView.findViewById(R.id.button_reschedule);
+            ratingBar = itemView.findViewById(R.id.ratingBar); // Initialize RatingBar
         }
     }
 }

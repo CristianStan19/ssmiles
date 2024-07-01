@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,9 +18,9 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.dcm_stellarsmiles.Adapter.DoctorAppointmentsAdapter;
 import com.example.dcm_stellarsmiles.Adapter.SpaceItemDecoration;
 import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
-import com.example.dcm_stellarsmiles.Adapter.DoctorAppointmentsAdapter;
 import com.example.dcm_stellarsmiles.Constants.Constants;
 import com.example.dcm_stellarsmiles.Intefaces.OnCancelAppointmentClickListener;
 import com.example.dcm_stellarsmiles.R;

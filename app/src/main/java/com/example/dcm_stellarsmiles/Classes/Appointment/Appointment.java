@@ -16,13 +16,18 @@ public class Appointment implements Serializable {
     private String appointmentStatus;
     private String appointmentId;
     private String patientName;
+    private float rating;
+    private int duration;
+    private String time;
+
     public Appointment()
     {}
 
-    public Appointment(String appointmentDate, String type, String doctor) {
+    public Appointment(String appointmentDate, String type, String doctor, int duration) {
         this.appointmentDate = appointmentDate;
         this.type = type;
         this.doctor = doctor;
+        this.duration = duration;
     }
 
     public String getAppointmentStatus() {
@@ -83,6 +88,29 @@ public class Appointment implements Serializable {
 
     public void setAppointmentId(String appointmentId) {
         this.appointmentId = appointmentId;
+    }
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     @Override

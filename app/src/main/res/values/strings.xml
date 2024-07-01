@@ -74,6 +74,11 @@
     <string name="specialization_or_department">Specialization or Department</string>
     <string name="delete_employee">Delete Employee</string>
     <string name="consultation">Consultation</string>
+    <string name="duration">Duration:</string>
+    <string name="_0_00">0.00</string>
+    <string name="_0_minutes">0 minutes</string>
+    <string name="appointment_time">Appointment Time:</string>
+    <string name="hour">Hour:</string>
     <string-array name="employee_types">
         <item>Doctor</item>
         <item>Assistant</item>

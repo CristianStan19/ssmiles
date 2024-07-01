@@ -1,18 +1,19 @@
 package com.example.dcm_stellarsmiles.Classes.Schedule;
 
 import java.util.List;
+import java.util.Map;
 
 public class Schedule {
     private String doctorID;
-    private String month; // Format: YYYY-WW (Year-Week)
-    private List<String> availableDays;
+    private String month; // Format: YYYY-MM
+    private Map<String, List<String>> availableDaysAndIntervals; // Map of week -> list of "day-interval"
 
     public Schedule() { }
 
-    public Schedule(String doctorID, String month, List<String> availableDays) {
+    public Schedule(String doctorID, String month, Map<String, List<String>> availableDaysAndIntervals) {
         this.doctorID = doctorID;
         this.month = month;
-        this.availableDays = availableDays;
+        this.availableDaysAndIntervals = availableDaysAndIntervals;
     }
 
     // Getters and setters
@@ -28,15 +29,12 @@ public class Schedule {
         return month;
     }
 
-    public void setMonth(String week) {
-        this.month = week;
+    public void setMonth(String month) {
+        this.month = month;
     }
 
-    public List<String> getAvailableDays() {
-        return availableDays;
+    public Map<String, List<String>> getAvailableDaysAndIntervals() {
+        return availableDaysAndIntervals;
     }
 
-    public void setAvailableDays(List<String> availableDays) {
-        this.availableDays = availableDays;
-    }
 }

@@ -13,7 +13,6 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/darkprpl_rounded_bk"
-        android:radius="30dp"
         android:text="@string/select_month"
         android:textStyle="bold"
         android:layout_marginStart="30dp"
@@ -45,6 +44,18 @@
         android:text="@string/save_schedule"
         android:textColor="@color/lightPurple"
         android:padding="10dp" />
+
+    <Button
+        android:id="@+id/btnEditSchedule"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/darkprpl_rounded_bk"
+        android:layout_marginStart="80dp"
+        android:layout_marginEnd="80dp"
+        android:text="Edit Schedule"
+        android:textColor="@color/lightPurple"
+        android:padding="10dp"
+        android:visibility="gone" /> <!-- Initially hidden -->
 
     <TextView
         android:id="@+id/textViewScheduleStatus"

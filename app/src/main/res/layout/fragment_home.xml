@@ -21,16 +21,63 @@
 
     <TextView
         android:id="@+id/tvAppointmentStatusUser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="360dp"
+        android:layout_height="39dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="20dp"
+        android:layout_marginEnd="16dp"
         android:background="@drawable/rounded_background"
         android:text="@string/you_currently_have_an_appointment_on_going"
         android:textColor="@color/darkPurple"
         android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvWelcomeUser" />
+
+    <TextView
+        android:id="@+id/tvRandomFact"
+        android:layout_width="358dp"
+        android:layout_height="88dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/rounded_background"
+        android:text="Random Fact"
+        android:textColor="@color/darkPurple"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnOpenConsultation" />
+
+    <Button
+        android:id="@+id/btnOpenProductRecommendations"
+        android:layout_width="369dp"
+        android:layout_height="79dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/darkprpl_rounded_bk"
+        android:text="OUR PRODUCT RECOMMANDATIONS"
+        android:textColor="@color/lightPurple"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvAppointmentStatusUser" />
+
+    <Button
+        android:id="@+id/btnOpenConsultation"
+        android:layout_width="356dp"
+        android:layout_height="105dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/darkprpl_rounded_bk"
+        android:text="Have a quick online consultation"
+        android:textColor="@color/lightPurple"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnOpenProductRecommendations" />
 
     <RelativeLayout
         android:id="@+id/rlNotification"

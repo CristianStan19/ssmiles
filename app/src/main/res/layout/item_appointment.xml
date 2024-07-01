@@ -46,7 +46,32 @@
         android:textColor="@color/darkPurple"
         android:textStyle="bold"/>
 
-    <!-- Add more fields as necessary -->
+    <TextView
+        android:id="@+id/text_view_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/duration"
+        android:textColor="@color/darkPurple"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/text_view_hour"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hour"
+        android:textColor="@color/darkPurple"
+        android:textStyle="bold"/>
+
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="1.0"
+        android:isIndicator="true"
+        android:progressTint="@color/darkPurple"
+        android:progressBackgroundTint="@color/midPurple"
+        android:layout_marginTop="8dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"

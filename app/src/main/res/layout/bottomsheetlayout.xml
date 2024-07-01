@@ -14,7 +14,8 @@
         android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
 
     <TextView
         android:id="@+id/createText"
@@ -29,7 +30,7 @@
         app:layout_constraintTop_toBottomOf="@id/imageMinimize"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginTop="20dp" />
 
     <ImageView
         android:id="@+id/cancelButton"
@@ -47,7 +48,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:text="@string/consultation_type"
         android:textColor="@color/darkPurple"
         android:textSize="16sp"
@@ -56,17 +57,16 @@
 
     <Spinner
         android:id="@+id/consultationSpinner"
-        android:layout_width="193dp"
+        android:layout_width="0dp"
         android:layout_height="43dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="10dp"
-        android:layout_weight="1"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
         android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@id/textConsultationType"
-        app:layout_constraintTop_toBottomOf="@+id/createText"
+        app:layout_constraintTop_toBottomOf="@id/createText"
         tools:ignore="TouchTargetSizeCheck" />
 
     <TextView
@@ -74,98 +74,142 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="32dp"
         android:text="@string/doctor"
         android:textColor="@color/darkPurple"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textConsultationType" />
+        app:layout_constraintTop_toBottomOf="@id/textConsultationType" />
 
     <Spinner
         android:id="@+id/consultationDoctor"
-        android:layout_width="194dp"
-        android:layout_height="43dp"
+        android:layout_width="212dp"
+        android:layout_height="46dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="10dp"
-        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
         android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@id/textDoctor"
-        app:layout_constraintTop_toBottomOf="@+id/consultationSpinner"
+        app:layout_constraintTop_toBottomOf="@id/consultationSpinner"
         tools:ignore="TouchTargetSizeCheck" />
 
     <TextView
         android:id="@+id/textAppointmentDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="40dp"
         android:text="@string/appointment_date"
         android:textColor="@color/darkPurple"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textDoctor" />
+        app:layout_constraintTop_toBottomOf="@id/textDoctor" />
 
     <Button
         android:id="@+id/btnDate"
         style="?android:spinnerStyle"
-        android:layout_width="181dp"
-        android:layout_height="48dp"
+        android:layout_width="208dp"
+        android:layout_height="42dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="10dp"
-        android:layout_weight="1"
+        android:layout_marginEnd="20dp"
         android:backgroundTint="@color/lightPurple"
         android:onClick="openDatePicker"
         android:padding="10dp"
-        android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.9"
-        app:layout_constraintStart_toEndOf="@id/textAppointmentDate"
-        app:layout_constraintTop_toBottomOf="@+id/consultationDoctor"
-        tools:ignore="SpeakableTextPresentCheck" />
-
-    <Button
-        android:id="@+id/btnSchedule"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="1dp"
-        android:layout_marginTop="84dp"
-        android:text="@string/schedule"
-        android:background="@drawable/darkprpl_rounded_bk"
-        android:textColor="@color/lightPurple"
+        android:textColor="@color/darkPurple"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textCost" />
+        app:layout_constraintStart_toEndOf="@id/textAppointmentDate"
+        app:layout_constraintTop_toBottomOf="@id/consultationDoctor"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <TextView
-        android:id="@+id/textCost"
+        android:id="@+id/textAppointmentTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="188dp"
-        android:layout_marginTop="24dp"
-        android:text="0.00"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="32dp"
+        android:text="@string/appointment_time"
         android:textColor="@color/darkPurple"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textAppointmentDate" />
+        app:layout_constraintTop_toBottomOf="@id/textAppointmentDate" />
+
+    <Spinner
+        android:id="@+id/timeIntervalSpinner"
+        android:layout_width="0dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:padding="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/textAppointmentTime"
+        app:layout_constraintTop_toBottomOf="@id/btnDate"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/textDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="36dp"
+        android:text="@string/duration"
+        android:textColor="@color/darkPurple"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textAppointmentTime" />
+
+    <TextView
+        android:id="@+id/textCost"
+        android:layout_width="30dp"
+        android:layout_height="22dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="32dp"
+        android:text="0.00"
+        android:textColor="@color/darkPurple"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/textAppointmentCost"
+        app:layout_constraintTop_toBottomOf="@+id/textDurationValue" />
 
     <TextView
         android:id="@+id/textAppointmentCost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
         android:text="@string/appointment_cost"
         android:textColor="@color/darkPurple"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textAppointmentDate" />
+        app:layout_constraintTop_toBottomOf="@+id/textDuration" />
 
+    <TextView
+        android:id="@+id/textDurationValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="24dp"
+        android:text="0 minutes"
+        android:textColor="@color/darkPurple"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/textDuration"
+        app:layout_constraintTop_toBottomOf="@+id/timeIntervalSpinner" />
 
-
+    <Button
+        android:id="@+id/btnSchedule"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="108dp"
+        android:background="@drawable/darkprpl_rounded_bk"
+        android:text="@string/schedule"
+        android:textColor="@color/lightPurple"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textDurationValue" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

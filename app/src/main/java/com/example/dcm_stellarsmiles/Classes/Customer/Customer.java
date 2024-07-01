@@ -18,6 +18,7 @@ public class Customer implements Cloneable, Serializable {
     protected int visits = 0;
     protected boolean isSmoker;
     protected boolean isDrinker;
+    protected int appoitnmentsCreated = 0;
 
     public Customer() {
     }
@@ -96,7 +97,14 @@ public class Customer implements Cloneable, Serializable {
         isDrinker = drinker;
     }
 
+    public void setAppoitnmentsCreated()
+    {
+        this.appoitnmentsCreated++;
+    }
 
+    public int getAppoitnmentsCreated() {
+        return appoitnmentsCreated;
+    }
 
     public String getCustomerID() {
         return customerID;

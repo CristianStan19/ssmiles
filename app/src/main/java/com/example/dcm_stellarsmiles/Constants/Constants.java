@@ -67,6 +67,7 @@ public class Constants {
 
     public static final Map<String, Integer> APPOINTMENT_COSTS = new HashMap<>();
     public static final Map<String, String> APPOINTMENT_SPECIALIZATIONS = new HashMap<>();
+    public static final Map<String, Integer> APPOINTMENT_DURATIONS = new HashMap<>(); // New map for appointment durations
 
     static {
         // General Dentist Appointments
@@ -124,6 +125,34 @@ public class Constants {
         APPOINTMENT_SPECIALIZATIONS.put(BONE_GRAFTING, "Periodontist");
         APPOINTMENT_SPECIALIZATIONS.put(GUM_GRAFTING, "Periodontist");
         APPOINTMENT_SPECIALIZATIONS.put(SCALING_AND_ROOT_PLANING, "Periodontist");
+
+        // Durations for General Dentist Appointments (in minutes)
+        APPOINTMENT_DURATIONS.put(ROUTINE_CHECKUP, 30);
+        APPOINTMENT_DURATIONS.put(TOOTH_EXTRACTION, 45);
+        APPOINTMENT_DURATIONS.put(DENTAL_FILLING, 60);
+        APPOINTMENT_DURATIONS.put(TEETH_CLEANING, 40);
+        APPOINTMENT_DURATIONS.put(X_RAY, 15);
+
+        // Durations for Endodontist Appointments (in minutes)
+        APPOINTMENT_DURATIONS.put(ROOT_CANAL_TREATMENT, 120);
+        APPOINTMENT_DURATIONS.put(APICOECTOMY, 90);
+        APPOINTMENT_DURATIONS.put(PULPOTOMY, 60);
+        APPOINTMENT_DURATIONS.put(ENDODONTIC_REASSESSMENT, 30);
+        APPOINTMENT_DURATIONS.put(INTERNAL_BLEACHING, 45);
+
+        // Durations for Orthodontist Appointments (in minutes)
+        APPOINTMENT_DURATIONS.put(BRACES_INSTALLATION, 90);
+        APPOINTMENT_DURATIONS.put(BRACES_ADJUSTMENT, 30);
+        APPOINTMENT_DURATIONS.put(RETAINER_INSTALLATION, 60);
+        APPOINTMENT_DURATIONS.put(RETAINER_ADJUSTMENT, 30);
+        APPOINTMENT_DURATIONS.put(INVISALIGN_TREATMENT, 60);
+
+        // Durations for Periodontist Appointments (in minutes)
+        APPOINTMENT_DURATIONS.put(GUM_TREATMENT, 60);
+        APPOINTMENT_DURATIONS.put(DENTAL_IMPLANT, 120);
+        APPOINTMENT_DURATIONS.put(BONE_GRAFTING, 90);
+        APPOINTMENT_DURATIONS.put(GUM_GRAFTING, 60);
+        APPOINTMENT_DURATIONS.put(SCALING_AND_ROOT_PLANING, 60);
     }
 
     public static final float LOYALITY_DISCOUNT = 0.1f;

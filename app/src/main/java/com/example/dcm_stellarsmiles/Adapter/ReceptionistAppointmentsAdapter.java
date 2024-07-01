@@ -58,6 +58,8 @@ public class ReceptionistAppointmentsAdapter extends RecyclerView.Adapter<Recept
         holder.tvAppCost.setText(String.valueOf(appointment.getCost()));
         holder.tvAppPatient.setText(appointment.getPatientName());
         holder.tvAppStatus.setText("Status: " + appointment.getAppointmentStatus());
+        holder.tvAppDuration.setText("Duration: " + appointment.getDuration());
+        holder.tvAppHour.setText("Hour: " + appointment.getTime());
 
         holder.btnCancelAppointment.setOnClickListener(v -> {
             if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {
@@ -90,7 +92,7 @@ public class ReceptionistAppointmentsAdapter extends RecyclerView.Adapter<Recept
     }
 
     public static class AppointmentViewHolder extends RecyclerView.ViewHolder {
-        TextView tvAppPatient, tvAppCost, tvAppType, tvAppDate, tvAppStatus;
+        TextView tvAppPatient, tvAppCost, tvAppType, tvAppDate, tvAppStatus, tvAppDuration, tvAppHour;
         Button btnCancelAppointment, btnRescheduleAppointment, btnCompleteAppointment;
 
         public AppointmentViewHolder(@NonNull View itemView) {
@@ -100,6 +102,8 @@ public class ReceptionistAppointmentsAdapter extends RecyclerView.Adapter<Recept
             tvAppType = itemView.findViewById(R.id.rec_text_view_type);
             tvAppPatient = itemView.findViewById(R.id.rec_text_view_patient);
             tvAppStatus = itemView.findViewById(R.id.rec_text_view_status);
+            tvAppDuration = itemView.findViewById(R.id.rec_text_view_duration); // Initialize TextView for duration
+            tvAppHour = itemView.findViewById(R.id.rec_text_view_hour); // Initialize TextView for hour
             btnCancelAppointment = itemView.findViewById(R.id.rec_button_cancel);
             btnRescheduleAppointment = itemView.findViewById(R.id.rec_button_reschedule);
             btnCompleteAppointment = itemView.findViewById(R.id.rec_button_complete);

@@ -254,13 +254,16 @@ public class AppointmentsFragment extends Fragment implements OnCancelAppointmen
         filteredAppointmentList.clear();
         for (Appointment appointment : appointmentList) {
             boolean matches = true;
-            if (selectedDoctor != null && !selectedDoctor.equals("All Doctors") && !appointment.getDoctor().equals(selectedDoctor)) {
+            if (selectedDoctor != null && !selectedDoctor.equals("All Doctors")
+                    && !appointment.getDoctor().equals(selectedDoctor)) {
                 matches = false;
             }
-            if (selectedStatus != null && !selectedStatus.equals("All Statuses") && !appointment.getAppointmentStatus().equals(selectedStatus)) {
+            if (selectedStatus != null && !selectedStatus.equals("All Statuses")
+                    && !appointment.getAppointmentStatus().equals(selectedStatus)) {
                 matches = false;
             }
-            if (selectedType != null && !selectedType.equals("All Types") && !appointment.getType().equals(selectedType)) {
+            if (selectedType != null && !selectedType.equals("All Types")
+                    && !appointment.getType().equals(selectedType)) {
                 matches = false;
             }
             if (selectedDate != null) {
