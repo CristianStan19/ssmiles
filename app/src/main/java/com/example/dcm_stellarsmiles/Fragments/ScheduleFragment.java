@@ -32,6 +32,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -46,11 +47,12 @@ public class ScheduleFragment extends Fragment {
     private Button btnSaveSchedule, btnDate;
     private TextView textViewScheduleStatus;
     private String doctorID;
-    private String selectedMonth;
+    private String doctorName;
     private FirebaseFirestore db;
     private Map<String, List<String>> availableDaysAndIntervals = new HashMap<>();
     private Map<String, Boolean> unavailableDays = new HashMap<>();
     private Button btnEditSchedule;
+    private Calendar selectedDate;
 
     public ScheduleFragment() {
         // Required empty public constructor
@@ -72,11 +74,31 @@ public class ScheduleFragment extends Fragment {
         FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
             doctorID = user.getUid();
+
+            // Initialize Firestore
+            db = FirebaseFirestore.getInstance();
+
+            // Reference the doctor document using the doctorID
+            DocumentReference docRef = db.collection("doctors").document(doctorID);
+
+            // Fetch the document
+            docRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        // Get the doctor's name from the document
+                        doctorName = document.getString("name");
+                    } else {
+                        Toast.makeText(getContext(), "Doctor's document does not exist.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Failed to get doctor's document: " + task.getException(), Toast.LENGTH_SHORT).show();
+                }
+            });
         } else {
             // Handle the case where user is not logged in
+            Toast.makeText(getContext(), "User is not logged in.", Toast.LENGTH_SHORT).show();
         }
-
-        db = FirebaseFirestore.getInstance();
 
         btnSaveSchedule = view.findViewById(R.id.btnSaveSchedule);
         btnEditSchedule = view.findViewById(R.id.btnEditSchedule);
@@ -88,12 +110,9 @@ public class ScheduleFragment extends Fragment {
 
         btnSaveSchedule.setOnClickListener(v -> saveSchedule());
 
-        // Initialize current month
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH);
-        selectedMonth = getMonthFormat(month + 1) + " " + year;
-        btnDate.setText(selectedMonth);
+        // Initialize current date
+        selectedDate = Calendar.getInstance();
+        updateDateButton();
 
         checkIfScheduleExists();
 
@@ -114,8 +133,8 @@ public class ScheduleFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId() == R.id.logoutOption) {
-            Toast.makeText(getContext(),  R.string.logout, Toast.LENGTH_SHORT).show();
+        if (item.getItemId() == R.id.logoutOption) {
+            Toast.makeText(getContext(), R.string.logout, Toast.LENGTH_SHORT).show();
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(getContext(), LogIn.class);
             startActivity(intent);
@@ -125,23 +144,16 @@ public class ScheduleFragment extends Fragment {
     }
 
     private void saveSchedule() {
-        if (selectedMonth == null) {
-            Toast.makeText(getContext(), "Please select a month.", Toast.LENGTH_SHORT).show();
+        if (selectedDate == null) {
+            Toast.makeText(getContext(), "Please select a date.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String[] parts = selectedMonth.split(" ");
-        if (parts.length != 2) {
-            Toast.makeText(getContext(), "Invalid month format", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String selectedDateStr = getFormattedDate(selectedDate);
 
-        String month = parts[0];
-        int year = Integer.parseInt(parts[1]);
+        Schedule schedule = new Schedule(doctorName, selectedDateStr, availableDaysAndIntervals);
 
-        Schedule schedule = new Schedule(doctorID, month, year, availableDaysAndIntervals);
-
-        db.collection("schedules").document(doctorID + "_" + year + "_" + getMonthNumber(month)).set(schedule)
+        db.collection("schedules").document(doctorID + "_" + selectedDateStr).set(schedule)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(getContext(), "Schedule saved successfully", Toast.LENGTH_SHORT).show();
@@ -153,27 +165,20 @@ public class ScheduleFragment extends Fragment {
     }
 
     private void checkIfScheduleExists() {
-        if (selectedMonth == null) {
+        if (selectedDate == null) {
             return;
         }
 
-        String[] parts = selectedMonth.split(" ");
-        if (parts.length != 2) {
-            Toast.makeText(getContext(), "Invalid month format", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String selectedDateStr = getFormattedDate(selectedDate);
 
-        String month = parts[0];
-        int year = Integer.parseInt(parts[1]);
-
-        db.collection("schedules").document(doctorID + "_" + year + "_" + getMonthNumber(month)).get()
+        db.collection("schedules").document(doctorID + "_" + selectedDateStr).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
                             lockSchedule();
                         } else {
-                            generateUnavailableDaysLayout(month + " " + year);
+                            generateUnavailableDaysLayout();
                         }
                     } else {
                         Toast.makeText(getContext(), "Failed to check schedule", Toast.LENGTH_SHORT).show();
@@ -202,10 +207,9 @@ public class ScheduleFragment extends Fragment {
         // Hide the save button and show the schedule status
         btnSaveSchedule.setVisibility(View.GONE);
         textViewScheduleStatus.setVisibility(View.VISIBLE);
-        textViewScheduleStatus.setText("You have already done your schedule for the month.");
+        textViewScheduleStatus.setText("You have already done your schedule for the selected date.");
 
         // Show the edit button
-        Button btnEditSchedule = getView().findViewById(R.id.btnEditSchedule);
         btnEditSchedule.setVisibility(View.VISIBLE);
         btnEditSchedule.setOnClickListener(v -> editSchedule());
     }
@@ -214,20 +218,10 @@ public class ScheduleFragment extends Fragment {
         layoutDays.removeAllViews(); // Clear any existing views
         textViewScheduleStatus.setVisibility(View.GONE);
 
-        String[] parts = selectedMonth.split(" ");
-        if (parts.length != 2) {
-            Toast.makeText(getContext(), "Invalid month format", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String month = parts[0];
-        int year = Integer.parseInt(parts[1]);
-
-        generateDaysLayoutForMonth(month + " " + year);
+        generateDaysLayoutForSelectedDate();
 
         // Show save button and hide edit button
         btnSaveSchedule.setVisibility(View.VISIBLE);
-        Button btnEditSchedule = getView().findViewById(R.id.btnEditSchedule);
         btnEditSchedule.setVisibility(View.GONE);
     }
 
@@ -236,41 +230,48 @@ public class ScheduleFragment extends Fragment {
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 getContext(),
                 (view, year, month, dayOfMonth) -> {
-                    selectedMonth = getMonthFormat(month + 1) + " " + year;
-                    btnDate.setText(selectedMonth);
+                    selectedDate.set(year, month, dayOfMonth);
+                    updateDateButton();
                     checkIfScheduleExists();
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
-        datePickerDialog.getDatePicker().findViewById(
-                getResources().getIdentifier("android:id/day", null, null)
-        ).setVisibility(View.GONE); // Hide the day spinner
-
         datePickerDialog.show();
     }
 
-    private void generateUnavailableDaysLayout(String monthYear) {
+    private void updateDateButton() {
+        btnDate.setText(getFormattedDate(selectedDate));
+    }
+
+    private void generateUnavailableDaysLayout() {
         layoutDays.removeAllViews();
         availableDaysAndIntervals.clear();
 
-        generateDaysLayoutForMonth(monthYear);
+        generateDaysLayoutForSelectedDate();
     }
 
-    private void generateDaysLayoutForMonth(String monthYear) {
-        String[] parts = monthYear.split(" ");
-        int month = getMonthNumber(parts[0]);
-        int year = Integer.parseInt(parts[1]);
+    private void generateDaysLayoutForSelectedDate() {
+        layoutDays.removeAllViews();
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month - 1, 1);
-        int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        // Generate layout for all days of the current month and the next month
+        Calendar currentMonth = (Calendar) selectedDate.clone();
+        currentMonth.set(Calendar.DAY_OF_MONTH, 1);
 
-        String[] dayAbbr = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+        Calendar nextMonth = (Calendar) currentMonth.clone();
+        nextMonth.add(Calendar.MONTH, 1);
 
-        for (String day : dayAbbr) {
-            String key = day + " (" + monthYear + ")";
+        addDaysToLayout(currentMonth);
+        addDaysToLayout(nextMonth);
+    }
+
+    private void addDaysToLayout(Calendar month) {
+        int daysInMonth = month.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        for (int day = 1; day <= daysInMonth; day++) {
+            month.set(Calendar.DAY_OF_MONTH, day);
+            String dateStr = getFormattedDate(month);
 
             LinearLayout dayLayout = new LinearLayout(getContext());
             dayLayout.setOrientation(LinearLayout.VERTICAL);
@@ -278,7 +279,7 @@ public class ScheduleFragment extends Fragment {
             dayLayout.setBackgroundColor(getResources().getColor(R.color.lightPurple));
 
             TextView dayText = new TextView(getContext());
-            dayText.setText(day + " (" + monthYear + ")");
+            dayText.setText(dateStr);
             dayText.setTextColor(getResources().getColor(R.color.darkPurple));
             dayText.setTextSize(16);
             dayLayout.addView(dayText);
@@ -290,14 +291,14 @@ public class ScheduleFragment extends Fragment {
             cannotComeCheckbox.setTextSize(16);
 
             // Set the checkbox state based on the unavailableDays map
-            cannotComeCheckbox.setChecked(unavailableDays.containsKey(key));
+            cannotComeCheckbox.setChecked(unavailableDays.containsKey(dateStr));
 
             cannotComeCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
-                    unavailableDays.put(key, true);
-                    availableDaysAndIntervals.remove(key);
+                    unavailableDays.put(dateStr, true);
+                    availableDaysAndIntervals.remove(dateStr);
                 } else {
-                    unavailableDays.remove(key);
+                    unavailableDays.remove(dateStr);
                 }
             });
 
@@ -330,7 +331,7 @@ public class ScheduleFragment extends Fragment {
             startHourSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    updateAvailableIntervals(day, startHourSpinner, endHourSpinner, monthYear);
+                    updateAvailableIntervals(dateStr, startHourSpinner, endHourSpinner);
                 }
 
                 @Override
@@ -341,7 +342,7 @@ public class ScheduleFragment extends Fragment {
             endHourSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    updateAvailableIntervals(day, startHourSpinner, endHourSpinner, monthYear);
+                    updateAvailableIntervals(dateStr, startHourSpinner, endHourSpinner);
                 }
 
                 @Override
@@ -355,95 +356,25 @@ public class ScheduleFragment extends Fragment {
         }
     }
 
-    private void updateAvailableIntervals(String day, Spinner startHourSpinner, Spinner endHourSpinner, String monthYear) {
+    private void updateAvailableIntervals(String date, Spinner startHourSpinner, Spinner endHourSpinner) {
         String startHour = startHourSpinner.getSelectedItem().toString();
         String endHour = endHourSpinner.getSelectedItem().toString();
-        String key = day + " (" + monthYear + ")";
 
-        if (!unavailableDays.containsKey(key)) {
-            if (!availableDaysAndIntervals.containsKey(key)) {
-                availableDaysAndIntervals.put(key, new ArrayList<>());
+        if (!unavailableDays.containsKey(date)) {
+            if (!availableDaysAndIntervals.containsKey(date)) {
+                availableDaysAndIntervals.put(date, new ArrayList<>());
             }
-            List<String> intervals = availableDaysAndIntervals.get(key);
+            List<String> intervals = availableDaysAndIntervals.get(date);
             intervals.clear(); // Clear previous selection
             intervals.add(startHour + " - " + endHour);
         }
     }
 
-    private String getMonthFormat(int month) {
-        String monthAbbreviation;
-        switch (month) {
-            case 1:
-                monthAbbreviation = "JAN";
-                break;
-            case 2:
-                monthAbbreviation = "FEB";
-                break;
-            case 3:
-                monthAbbreviation = "MAR";
-                break;
-            case 4:
-                monthAbbreviation = "APR";
-                break;
-            case 5:
-                monthAbbreviation = "MAY";
-                break;
-            case 6:
-                monthAbbreviation = "JUN";
-                break;
-            case 7:
-                monthAbbreviation = "JUL";
-                break;
-            case 8:
-                monthAbbreviation = "AUG";
-                break;
-            case 9:
-                monthAbbreviation = "SEP";
-                break;
-            case 10:
-                monthAbbreviation = "OCT";
-                break;
-            case 11:
-                monthAbbreviation = "NOV";
-                break;
-            case 12:
-                monthAbbreviation = "DEC";
-                break;
-            default:
-                monthAbbreviation = "JAN";
-                break;
-        }
-        return monthAbbreviation;
-    }
+    private String getFormattedDate(Calendar date) {
+        int day = date.get(Calendar.DAY_OF_MONTH);
+        int month = date.get(Calendar.MONTH) + 1;
+        int year = date.get(Calendar.YEAR);
 
-    private int getMonthNumber(String month) {
-        switch (month) {
-            case "JAN":
-                return 1;
-            case "FEB":
-                return 2;
-            case "MAR":
-                return 3;
-            case "APR":
-                return 4;
-            case "MAY":
-                return 5;
-            case "JUN":
-                return 6;
-            case "JUL":
-                return 7;
-            case "AUG":
-                return 8;
-            case "SEP":
-                return 9;
-            case "OCT":
-                return 10;
-            case "NOV":
-                return 11;
-            case "DEC":
-                return 12;
-            default:
-                return 1;
-        }
+        return String.format("%02d-%02d-%04d", day, month, year);
     }
 }

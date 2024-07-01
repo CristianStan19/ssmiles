@@ -384,6 +384,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 });
     }
 
+
     private void setAvailableDatesAndTimes(List<Schedule> schedules) {
         List<Long> availableDates = new ArrayList<>();
         List<String> availableDays = new ArrayList<>();
@@ -391,27 +392,28 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         Calendar cal = Calendar.getInstance();
         for (Schedule schedule : schedules) {
             for (Map.Entry<String, List<String>> entry : schedule.getDays().entrySet()) {
-                String day = entry.getKey();
+                String date = entry.getKey();
                 List<String> intervals = entry.getValue();
-                String[] parts = schedule.getMonth().split(" ");
-                int month = getMonthNumber(parts[0]);
-                int year = schedule.getYear();
 
-                cal.set(Calendar.YEAR, year);
-                cal.set(Calendar.MONTH, month - 1);
+                String[] dateParts = date.split("-");
+                if (dateParts.length != 3) {
+                    Log.e("Dashboard", "Invalid date format: " + date);
+                    continue;
+                }
 
-                int dayOfWeek = getDayOfWeek(day);
-                cal.set(Calendar.DAY_OF_WEEK, dayOfWeek);
+                try {
+                    int day = Integer.parseInt(dateParts[0]);
+                    int month = Integer.parseInt(dateParts[1]) - 1; // Calendar month is 0-based
+                    int year = Integer.parseInt(dateParts[2]);
 
-                for (String interval : intervals) {
-                    // Assuming interval format is "startTime - endTime" (e.g., "9:00 - 18:00")
-                    String[] times = interval.split(" - ");
-                    String startTime = times[0];
-                    String endTime = times[1];
-                    String key = String.format(Locale.getDefault(), "%04d-%02d-%02d %s - %s", year, month, cal.get(Calendar.DAY_OF_MONTH), startTime, endTime);
+                    cal.set(year, month, day);
 
-                    availableDates.add(cal.getTimeInMillis());
-                    availableDays.add(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month, cal.get(Calendar.DAY_OF_MONTH)));
+                    for (String interval : intervals) {
+                        availableDates.add(cal.getTimeInMillis());
+                        availableDays.add(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, day));
+                    }
+                } catch (NumberFormatException e) {
+                    Log.e("Dashboard", "Error parsing date parts: " + date, e);
                 }
             }
         }
@@ -431,86 +433,92 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         });
     }
 
-    private int getMonthNumber(String month) {
-        switch (month.toUpperCase()) {
-            case "JAN": return 1;
-            case "FEB": return 2;
-            case "MAR": return 3;
-            case "APR": return 4;
-            case "MAY": return 5;
-            case "JUN": return 6;
-            case "JUL": return 7;
-            case "AUG": return 8;
-            case "SEP": return 9;
-            case "OCT": return 10;
-            case "NOV": return 11;
-            case "DEC": return 12;
-            default: return 1;
-        }
-    }
-
-    private int getDayOfWeek(String day) {
-        switch (day.toUpperCase()) {
-            case "MON": return Calendar.MONDAY;
-            case "TUE": return Calendar.TUESDAY;
-            case "WED": return Calendar.WEDNESDAY;
-            case "THU": return Calendar.THURSDAY;
-            case "FRI": return Calendar.FRIDAY;
-            case "SAT": return Calendar.SATURDAY;
-            case "SUN": return Calendar.SUNDAY;
-            default: return Calendar.MONDAY;
-        }
-    }
-
     private void updateAvailableTimeSlots(String doctorName, String date) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference appointmentsRef = db.collection("appointments");
-        String type = consultationSpinner.getSelectedItem().toString();
-        int duration = Constants.APPOINTMENT_DURATIONS.getOrDefault(type, 0);
+        CollectionReference schedulesRef = db.collection("schedules");
 
-        appointmentsRef.whereEqualTo("doctor", doctorName).whereEqualTo("appointmentDate", date).get()
+        // Fetch appointments for the selected date and doctor
+        appointmentsRef.whereEqualTo("doctor", doctorName)
+                .whereEqualTo("appointmentDate", date)
+                .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<String> availableTimeSlots = generateTimeSlots();
+                        List<String> bookedTimeSlots = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String appointmentTime = document.getString("time");
-                            String appointmentType = document.getString("type");
-                            int appointmentDuration = Constants.APPOINTMENT_DURATIONS.getOrDefault(appointmentType, 0);
-                            availableTimeSlots.removeIf(slot -> isOverlapping(slot, appointmentTime, appointmentDuration));
+                            bookedTimeSlots.add(appointmentTime);
                         }
-                        ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(Dashboard.this, android.R.layout.simple_spinner_dropdown_item, availableTimeSlots);
-                        timeAdapter.setDropDownViewResource(R.layout.spinner_list_color);
-                        timeIntervalSpinner.setAdapter(timeAdapter);
+
+                        // Fetch schedule for the doctor
+                        schedulesRef.whereEqualTo("doctorID", doctorName)
+                                .get()
+                                .addOnCompleteListener(scheduleTask -> {
+                                    if (scheduleTask.isSuccessful() && !scheduleTask.getResult().isEmpty()) {
+                                        List<String> availableTimeSlots = new ArrayList<>();
+                                        for (QueryDocumentSnapshot scheduleDoc : scheduleTask.getResult()) {
+                                            Schedule schedule = scheduleDoc.toObject(Schedule.class);
+                                            if (schedule.getDays().containsKey(date)) {
+                                                List<String> intervals = schedule.getDays().get(date);
+                                                availableTimeSlots = generateTimeSlotsFromIntervals(intervals);
+                                                availableTimeSlots.removeAll(bookedTimeSlots);
+                                            }
+                                        }
+
+                                        if (availableTimeSlots.isEmpty()) {
+                                            Toast.makeText(Dashboard.this, "No available time slots for the selected date.", Toast.LENGTH_SHORT).show();
+                                        }
+
+                                        ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(Dashboard.this, android.R.layout.simple_spinner_dropdown_item, availableTimeSlots);
+                                        timeAdapter.setDropDownViewResource(R.layout.spinner_list_color);
+                                        timeIntervalSpinner.setAdapter(timeAdapter);
+                                    } else {
+                                        Log.w("Dashboard", "No schedule found for doctor: " + doctorName);
+                                    }
+                                });
                     } else {
                         Log.w("Dashboard", "Error getting appointments: ", task.getException());
                     }
                 });
     }
 
-    private List<String> generateTimeSlots() {
+    private List<String> generateTimeSlotsFromIntervals(List<String> intervals) {
         List<String> timeSlots = new ArrayList<>();
-        for (int hour = 9; hour <= 17; hour++) {
-            for (int minute = 0; minute < 60; minute += 30) {
-                if ((hour == 17 && minute + 30 > 60)) continue;
-                timeSlots.add(String.format("%02d:%02d", hour, minute));
+        for (String interval : intervals) {
+            String[] times = interval.split(" - ");
+            String startTime = times[0];
+            String endTime = times[1];
+
+            int startHour = Integer.parseInt(startTime.split(":")[0]);
+            int startMinute = Integer.parseInt(startTime.split(":")[1]);
+            int endHour = Integer.parseInt(endTime.split(":")[0]);
+            int endMinute = Integer.parseInt(endTime.split(":")[1]);
+
+            while (startHour < endHour || (startHour == endHour && startMinute < endMinute)) {
+                timeSlots.add(String.format("%02d:%02d", startHour, startMinute));
+                startMinute += 30;
+                if (startMinute >= 60) {
+                    startMinute -= 60;
+                    startHour++;
+                }
             }
         }
         return timeSlots;
     }
 
+
     private boolean isOverlapping(String slot, String appointmentTime, int appointmentDuration) {
         int slotHour = Integer.parseInt(slot.split(":")[0]);
         int slotMinute = Integer.parseInt(slot.split(":")[1]);
-        int appointmentHour = Integer.parseInt(appointmentTime.split(":")[0]);
-        int appointmentMinute = Integer.parseInt(appointmentTime.split(":")[1]);
+        int appointmentStartHour = Integer.parseInt(appointmentTime.split(":")[0]);
+        int appointmentStartMinute = Integer.parseInt(appointmentTime.split(":")[1]);
 
-        int slotEndHour = slotHour + (slotMinute + 30) / 60;
-        int slotEndMinute = (slotMinute + 30) % 60;
-        int appointmentEndHour = appointmentHour + (appointmentMinute + appointmentDuration) / 60;
-        int appointmentEndMinute = (appointmentMinute + appointmentDuration) % 60;
+        int slotStartMinutes = slotHour * 60 + slotMinute;
+        int slotEndMinutes = slotStartMinutes + 30; // Assuming each slot is 30 minutes
+        int appointmentStartMinutes = appointmentStartHour * 60 + appointmentStartMinute;
+        int appointmentEndMinutes = appointmentStartMinutes + appointmentDuration;
 
-        return !(slotEndHour < appointmentHour || (slotEndHour == appointmentHour && slotEndMinute <= appointmentMinute) ||
-                appointmentEndHour < slotHour || (appointmentEndHour == slotHour && appointmentEndMinute <= slotMinute));
+        return (slotStartMinutes < appointmentEndMinutes && slotEndMinutes > appointmentStartMinutes);
     }
 
     private String getTodaysDate() {
@@ -523,53 +531,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
     }
 
     private String makeDateString(int dayOfMonth, int month, int year) {
-        return dayOfMonth + "/" + getMonthFormat(month) + "/" + year;
-    }
-
-    private String getMonthFormat(int month) {
-        String monthAbbreviation;
-        switch (month) {
-            case 1:
-                monthAbbreviation = "JAN";
-                break;
-            case 2:
-                monthAbbreviation = "FEB";
-                break;
-            case 3:
-                monthAbbreviation = "MAR";
-                break;
-            case 4:
-                monthAbbreviation = "APR";
-                break;
-            case 5:
-                monthAbbreviation = "MAY";
-                break;
-            case 6:
-                monthAbbreviation = "JUN";
-                break;
-            case 7:
-                monthAbbreviation = "JUL";
-                break;
-            case 8:
-                monthAbbreviation = "AUG";
-                break;
-            case 9:
-                monthAbbreviation = "SEP";
-                break;
-            case 10:
-                monthAbbreviation = "OCT";
-                break;
-            case 11:
-                monthAbbreviation = "NOV";
-                break;
-            case 12:
-                monthAbbreviation = "DEC";
-                break;
-            default:
-                monthAbbreviation = "JAN";
-                break;
-        }
-        return monthAbbreviation;
+        return String.format(Locale.getDefault(), "%02d-%02d-%04d", dayOfMonth, month, year);
     }
 
     private void updateAvailableDates(String doctorName, DatePickerDialog datePickerDialog) {
@@ -590,4 +552,6 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                     }
                 });
     }
+
+
 }
