@@ -390,23 +390,29 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
 
         Calendar cal = Calendar.getInstance();
         for (Schedule schedule : schedules) {
-            for (Map.Entry<String, List<String>> entry : schedule.getAvailableDaysAndIntervals().entrySet()) {
-                String key = entry.getKey();
-                String[] parts = key.split(" - ");
-                String day = parts[0];
-                String weekAndMonthYear = parts[1];
-                String[] weekAndMonthYearParts = weekAndMonthYear.split(" ");
-                int week = Integer.parseInt(weekAndMonthYearParts[1]);
-                String monthYear = weekAndMonthYearParts[2] + " " + weekAndMonthYearParts[3].replace("(", "").replace(")", "");
-                int month = getMonthNumber(monthYear.split(" ")[0]);
-                int year = Integer.parseInt(monthYear.split(" ")[1]);
+            for (Map.Entry<String, List<String>> entry : schedule.getDays().entrySet()) {
+                String day = entry.getKey();
+                List<String> intervals = entry.getValue();
+                String[] parts = schedule.getMonth().split(" ");
+                int month = getMonthNumber(parts[0]);
+                int year = schedule.getYear();
 
                 cal.set(Calendar.YEAR, year);
                 cal.set(Calendar.MONTH, month - 1);
-                cal.set(Calendar.WEEK_OF_MONTH, week);
-                cal.set(Calendar.DAY_OF_WEEK, getDayOfWeek(day));
-                availableDates.add(cal.getTimeInMillis());
-                availableDays.add(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month, cal.get(Calendar.DAY_OF_MONTH)));
+
+                int dayOfWeek = getDayOfWeek(day);
+                cal.set(Calendar.DAY_OF_WEEK, dayOfWeek);
+
+                for (String interval : intervals) {
+                    // Assuming interval format is "startTime - endTime" (e.g., "9:00 - 18:00")
+                    String[] times = interval.split(" - ");
+                    String startTime = times[0];
+                    String endTime = times[1];
+                    String key = String.format(Locale.getDefault(), "%04d-%02d-%02d %s - %s", year, month, cal.get(Calendar.DAY_OF_MONTH), startTime, endTime);
+
+                    availableDates.add(cal.getTimeInMillis());
+                    availableDays.add(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month, cal.get(Calendar.DAY_OF_MONTH)));
+                }
             }
         }
 
@@ -424,7 +430,6 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             }
         });
     }
-
 
     private int getMonthNumber(String month) {
         switch (month.toUpperCase()) {

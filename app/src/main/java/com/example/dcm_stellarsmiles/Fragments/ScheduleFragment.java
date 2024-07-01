@@ -92,16 +92,7 @@ public class ScheduleFragment extends Fragment {
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH);
-        String firstMonth = getMonthFormat(month + 1);
-        String secondMonth = getMonthFormat(month + 2);
-
-        // Handle the year change for December
-        if (month == 11) {
-            secondMonth = getMonthFormat(1);
-            year++;
-        }
-
-        selectedMonth = firstMonth + "-" + secondMonth + " " + year;
+        selectedMonth = getMonthFormat(month + 1) + " " + year;
         btnDate.setText(selectedMonth);
 
         checkIfScheduleExists();
@@ -114,7 +105,6 @@ public class ScheduleFragment extends Fragment {
 
         return view;
     }
-
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
@@ -140,89 +130,56 @@ public class ScheduleFragment extends Fragment {
             return;
         }
 
-        String[] months = selectedMonth.split("-");
-        if (months.length != 2) {
+        String[] parts = selectedMonth.split(" ");
+        if (parts.length != 2) {
             Toast.makeText(getContext(), "Invalid month format", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String firstMonth = months[0];
-        String secondMonthWithYear = months[1];
-        String[] secondMonthParts = secondMonthWithYear.split(" ");
-        if (secondMonthParts.length != 2) {
-            Toast.makeText(getContext(), "Invalid month format", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String month = parts[0];
+        int year = Integer.parseInt(parts[1]);
 
-        String secondMonth = secondMonthParts[0] + " " + secondMonthParts[1];
+        Schedule schedule = new Schedule(doctorID, month, year, availableDaysAndIntervals);
 
-        Schedule scheduleFirstMonth = new Schedule(doctorID, firstMonth + " " + secondMonthParts[1], availableDaysAndIntervals);
-        Schedule scheduleSecondMonth = new Schedule(doctorID, secondMonth, availableDaysAndIntervals);
-
-        db.collection("schedules").document(doctorID + "_" + firstMonth + " " + secondMonthParts[1]).set(scheduleFirstMonth)
+        db.collection("schedules").document(doctorID + "_" + year + "_" + getMonthNumber(month)).set(schedule)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        db.collection("schedules").document(doctorID + "_" + secondMonth).set(scheduleSecondMonth)
-                                .addOnCompleteListener(task2 -> {
-                                    if (task2.isSuccessful()) {
-                                        Toast.makeText(getContext(), "Schedule saved successfully", Toast.LENGTH_SHORT).show();
-                                        lockSchedule();
-                                    } else {
-                                        Toast.makeText(getContext(), "Failed to save schedule for the second month", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                        Toast.makeText(getContext(), "Schedule saved successfully", Toast.LENGTH_SHORT).show();
+                        lockSchedule();
                     } else {
-                        Toast.makeText(getContext(), "Failed to save schedule for the first month", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Failed to save schedule", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-
-
     private void checkIfScheduleExists() {
-        String[] months = selectedMonth.split("-");
-        if (months.length != 2) {
+        if (selectedMonth == null) {
+            return;
+        }
+
+        String[] parts = selectedMonth.split(" ");
+        if (parts.length != 2) {
             Toast.makeText(getContext(), "Invalid month format", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String firstMonth = months[0];
-        String secondMonthWithYear = months[1];
-        String[] secondMonthParts = secondMonthWithYear.split(" ");
-        if (secondMonthParts.length != 2) {
-            Toast.makeText(getContext(), "Invalid month format", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String month = parts[0];
+        int year = Integer.parseInt(parts[1]);
 
-        String secondMonth = secondMonthParts[0] + " " + secondMonthParts[1];
-
-        db.collection("schedules").document(doctorID + "_" + firstMonth + " " + secondMonthParts[1]).get()
+        db.collection("schedules").document(doctorID + "_" + year + "_" + getMonthNumber(month)).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
                             lockSchedule();
                         } else {
-                            db.collection("schedules").document(doctorID + "_" + secondMonth).get()
-                                    .addOnCompleteListener(task2 -> {
-                                        if (task2.isSuccessful()) {
-                                            DocumentSnapshot document2 = task2.getResult();
-                                            if (document2.exists()) {
-                                                lockSchedule();
-                                            } else {
-                                                generateUnavailableDaysLayout(firstMonth + " " + secondMonthParts[1], secondMonth);
-                                            }
-                                        } else {
-                                            Toast.makeText(getContext(), "Failed to check schedule", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                            generateUnavailableDaysLayout(month + " " + year);
                         }
                     } else {
                         Toast.makeText(getContext(), "Failed to check schedule", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
-
 
     private void lockSchedule() {
         layoutDays.removeAllViews(); // Clear any existing views
@@ -257,24 +214,16 @@ public class ScheduleFragment extends Fragment {
         layoutDays.removeAllViews(); // Clear any existing views
         textViewScheduleStatus.setVisibility(View.GONE);
 
-        String[] months = selectedMonth.split("-");
-        if (months.length != 2) {
+        String[] parts = selectedMonth.split(" ");
+        if (parts.length != 2) {
             Toast.makeText(getContext(), "Invalid month format", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String firstMonth = months[0];
-        String secondMonthWithYear = months[1];
-        String[] secondMonthParts = secondMonthWithYear.split(" ");
-        if (secondMonthParts.length != 2) {
-            Toast.makeText(getContext(), "Invalid month format", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String month = parts[0];
+        int year = Integer.parseInt(parts[1]);
 
-        String secondMonth = secondMonthParts[0] + " " + secondMonthParts[1];
-
-        generateDaysLayoutForMonth(firstMonth + " " + secondMonthParts[1]);
-        generateDaysLayoutForMonth(secondMonth);
+        generateDaysLayoutForMonth(month + " " + year);
 
         // Show save button and hide edit button
         btnSaveSchedule.setVisibility(View.VISIBLE);
@@ -282,23 +231,12 @@ public class ScheduleFragment extends Fragment {
         btnEditSchedule.setVisibility(View.GONE);
     }
 
-
-
     private void showMonthPickerDialog() {
         final Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 getContext(),
                 (view, year, month, dayOfMonth) -> {
-                    String firstMonth = getMonthFormat(month + 1);
-                    String secondMonth = getMonthFormat(month + 2);
-
-                    // Handle the year change for December
-                    if (month == 11) {
-                        secondMonth = getMonthFormat(1);
-                        year++;
-                    }
-
-                    selectedMonth = firstMonth + "-" + secondMonth + " " + year;
+                    selectedMonth = getMonthFormat(month + 1) + " " + year;
                     btnDate.setText(selectedMonth);
                     checkIfScheduleExists();
                 },
@@ -313,14 +251,11 @@ public class ScheduleFragment extends Fragment {
         datePickerDialog.show();
     }
 
-
-
-    private void generateUnavailableDaysLayout(String firstMonth, String secondMonth) {
+    private void generateUnavailableDaysLayout(String monthYear) {
         layoutDays.removeAllViews();
         availableDaysAndIntervals.clear();
 
-        generateDaysLayoutForMonth(firstMonth);
-        generateDaysLayoutForMonth(secondMonth);
+        generateDaysLayoutForMonth(monthYear);
     }
 
     private void generateDaysLayoutForMonth(String monthYear) {
@@ -334,100 +269,96 @@ public class ScheduleFragment extends Fragment {
 
         String[] dayAbbr = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
-        for (int week = 0; week < 8; week++) {
-            final int currentWeek = week; // Capture the current value of week
-            for (String day : dayAbbr) {
-                String key = day + " - Week " + (currentWeek + 1) + " (" + monthYear + ")";
+        for (String day : dayAbbr) {
+            String key = day + " (" + monthYear + ")";
 
-                LinearLayout dayLayout = new LinearLayout(getContext());
-                dayLayout.setOrientation(LinearLayout.VERTICAL);
-                dayLayout.setPadding(40, 8, 40, 8);
-                dayLayout.setBackgroundColor(getResources().getColor(R.color.lightPurple));
+            LinearLayout dayLayout = new LinearLayout(getContext());
+            dayLayout.setOrientation(LinearLayout.VERTICAL);
+            dayLayout.setPadding(40, 8, 40, 8);
+            dayLayout.setBackgroundColor(getResources().getColor(R.color.lightPurple));
 
-                TextView dayText = new TextView(getContext());
-                dayText.setText(day + " - Week " + (currentWeek + 1) + " (" + monthYear + ")");
-                dayText.setTextColor(getResources().getColor(R.color.darkPurple));
-                dayText.setTextSize(16);
-                dayLayout.addView(dayText);
+            TextView dayText = new TextView(getContext());
+            dayText.setText(day + " (" + monthYear + ")");
+            dayText.setTextColor(getResources().getColor(R.color.darkPurple));
+            dayText.setTextSize(16);
+            dayLayout.addView(dayText);
 
-                // Checkbox for "I cannot come this day"
-                CheckBox cannotComeCheckbox = new CheckBox(getContext());
-                cannotComeCheckbox.setText("I cannot come this day");
-                cannotComeCheckbox.setTextColor(getResources().getColor(R.color.darkPurple));
-                cannotComeCheckbox.setTextSize(16);
+            // Checkbox for "I cannot come this day"
+            CheckBox cannotComeCheckbox = new CheckBox(getContext());
+            cannotComeCheckbox.setText("I cannot come this day");
+            cannotComeCheckbox.setTextColor(getResources().getColor(R.color.darkPurple));
+            cannotComeCheckbox.setTextSize(16);
 
-                // Set the checkbox state based on the unavailableDays map
-                cannotComeCheckbox.setChecked(unavailableDays.containsKey(key));
+            // Set the checkbox state based on the unavailableDays map
+            cannotComeCheckbox.setChecked(unavailableDays.containsKey(key));
 
-                cannotComeCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                    if (isChecked) {
-                        unavailableDays.put(key, true);
-                        availableDaysAndIntervals.remove(key);
-                    } else {
-                        unavailableDays.remove(key);
-                    }
-                });
-
-                // Spinner for selecting start hour
-                Spinner startHourSpinner = new Spinner(getContext());
-                List<String> startHours = new ArrayList<>();
-                for (int hour = 9; hour < 18; hour++) {
-                    startHours.add(hour + ":00");
+            cannotComeCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    unavailableDays.put(key, true);
+                    availableDaysAndIntervals.remove(key);
+                } else {
+                    unavailableDays.remove(key);
                 }
-                ArrayAdapter<String> startHourAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, startHours);
-                startHourAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                startHourSpinner.setAdapter(startHourAdapter);
+            });
 
-                // Spinner for selecting end hour
-                Spinner endHourSpinner = new Spinner(getContext());
-                List<String> endHours = new ArrayList<>();
-                for (int hour = 10; hour <= 18; hour++) {
-                    endHours.add(hour + ":00");
-                }
-                ArrayAdapter<String> endHourAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, endHours);
-                endHourAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                endHourSpinner.setAdapter(endHourAdapter);
-                endHourSpinner.setSelection(endHours.size() - 1); // Set default selection to 18:00
-
-                LinearLayout timeSelectionLayout = new LinearLayout(getContext());
-                timeSelectionLayout.setOrientation(LinearLayout.HORIZONTAL);
-                timeSelectionLayout.addView(startHourSpinner);
-                timeSelectionLayout.addView(endHourSpinner);
-
-                startHourSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        updateAvailableIntervals(day, currentWeek, startHourSpinner, endHourSpinner, monthYear);
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                    }
-                });
-
-                endHourSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        updateAvailableIntervals(day, currentWeek, startHourSpinner, endHourSpinner, monthYear);
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                    }
-                });
-
-                dayLayout.addView(cannotComeCheckbox);
-                dayLayout.addView(timeSelectionLayout);
-                layoutDays.addView(dayLayout);
+            // Spinner for selecting start hour
+            Spinner startHourSpinner = new Spinner(getContext());
+            List<String> startHours = new ArrayList<>();
+            for (int hour = 9; hour < 18; hour++) {
+                startHours.add(hour + ":00");
             }
+            ArrayAdapter<String> startHourAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, startHours);
+            startHourAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            startHourSpinner.setAdapter(startHourAdapter);
+
+            // Spinner for selecting end hour
+            Spinner endHourSpinner = new Spinner(getContext());
+            List<String> endHours = new ArrayList<>();
+            for (int hour = 10; hour <= 18; hour++) {
+                endHours.add(hour + ":00");
+            }
+            ArrayAdapter<String> endHourAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, endHours);
+            endHourAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            endHourSpinner.setAdapter(endHourAdapter);
+            endHourSpinner.setSelection(endHours.size() - 1); // Set default selection to 18:00
+
+            LinearLayout timeSelectionLayout = new LinearLayout(getContext());
+            timeSelectionLayout.setOrientation(LinearLayout.HORIZONTAL);
+            timeSelectionLayout.addView(startHourSpinner);
+            timeSelectionLayout.addView(endHourSpinner);
+
+            startHourSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    updateAvailableIntervals(day, startHourSpinner, endHourSpinner, monthYear);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
+
+            endHourSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    updateAvailableIntervals(day, startHourSpinner, endHourSpinner, monthYear);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
+
+            dayLayout.addView(cannotComeCheckbox);
+            dayLayout.addView(timeSelectionLayout);
+            layoutDays.addView(dayLayout);
         }
     }
 
-
-    private void updateAvailableIntervals(String day, int week, Spinner startHourSpinner, Spinner endHourSpinner, String monthYear) {
+    private void updateAvailableIntervals(String day, Spinner startHourSpinner, Spinner endHourSpinner, String monthYear) {
         String startHour = startHourSpinner.getSelectedItem().toString();
         String endHour = endHourSpinner.getSelectedItem().toString();
-        String key = day + " - Week " + (week + 1) + " (" + monthYear + ")";
+        String key = day + " (" + monthYear + ")";
 
         if (!unavailableDays.containsKey(key)) {
             if (!availableDaysAndIntervals.containsKey(key)) {
