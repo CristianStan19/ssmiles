@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="Toothpaste: 5.99"
+        android:text="Electric Toothbrush: 99.99$"
         android:textColor="@color/darkPurple"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="Electric Toothbrush: 49.99"
+        android:text="Bucal Shower: 59.99$"
         android:textColor="@color/darkPurple"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="Mouthwash: 7.99"
+        android:text="Whitening Strips: 29.99$"
         android:textColor="@color/darkPurple"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -60,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="Dental Floss: 3.49"
+        android:text="Water Flosser: 24.99$"
         android:textColor="@color/darkPurple"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -72,10 +72,58 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="Whitening Strips: 29.99"
+        android:text="Dental Guard: 19.99$"
         android:textColor="@color/darkPurple"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvProduct4" />
+
+    <TextView
+        android:id="@+id/tvProduct6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Mouthwash: 7.99$"
+        android:textColor="@color/darkPurple"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvProduct5" />
+
+    <TextView
+        android:id="@+id/tvProduct7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Toothpaste: 5.99$"
+        android:textColor="@color/darkPurple"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvProduct6" />
+
+    <TextView
+        android:id="@+id/tvProduct8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Dental Floss: 3.49$"
+        android:textColor="@color/darkPurple"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvProduct7" />
+
+    <TextView
+        android:id="@+id/tvProduct9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Tongue Scraper: 2.99$"
+        android:textColor="@color/darkPurple"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvProduct8" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

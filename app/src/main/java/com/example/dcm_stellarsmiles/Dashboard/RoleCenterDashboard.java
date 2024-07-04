@@ -44,8 +44,8 @@ import java.util.UUID;
 
 public class RoleCenterDashboard extends AppCompatActivity {
 
-    private Spinner spinnerDoctors, spinnerAssistants, spinnerReceptionists, spinnerEmployeeType;
-    private EditText editTextName, editTextPhone, editTextEmail, editTextSpecializationDepartment;
+    private Spinner spinnerDoctors, spinnerAssistants, spinnerReceptionists, spinnerEmployeeType, spinnerSpecialization, spinnerDepartment;
+    private EditText editTextName, editTextPhone, editTextEmail;
     private Button buttonAdd, buttonDelete;
     private FirebaseFirestore db;
     private List<String> doctorIds = new ArrayList<>();
@@ -63,10 +63,11 @@ public class RoleCenterDashboard extends AppCompatActivity {
         spinnerAssistants = findViewById(R.id.spinner_assistants);
         spinnerReceptionists = findViewById(R.id.spinner_receptionists);
         spinnerEmployeeType = findViewById(R.id.spinner_employee_type);
+        spinnerSpecialization = findViewById(R.id.spinner_specialization);
+        spinnerDepartment = findViewById(R.id.spinner_department);
         editTextName = findViewById(R.id.edit_text_name);
         editTextPhone = findViewById(R.id.edit_text_phone);
         editTextEmail = findViewById(R.id.edit_text_email);
-        editTextSpecializationDepartment = findViewById(R.id.edit_text_specialization_department);
         buttonAdd = findViewById(R.id.button_add);
         buttonDelete = findViewById(R.id.button_delete);
 
@@ -77,21 +78,34 @@ public class RoleCenterDashboard extends AppCompatActivity {
         loadEmployees("assistants", spinnerAssistants, assistantIds, "Select an Assistant");
         loadEmployees("receptionists", spinnerReceptionists, receptionistIds, "Select a Receptionist");
 
+        ArrayAdapter<CharSequence> doctorSpecializationAdapter = ArrayAdapter.createFromResource(this, R.array.doctor_specializations, android.R.layout.simple_spinner_item);
+        doctorSpecializationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        ArrayAdapter<CharSequence> assistantDepartmentAdapter = ArrayAdapter.createFromResource(this, R.array.assistant_departments, android.R.layout.simple_spinner_item);
+        assistantDepartmentAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
         spinnerEmployeeType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedEmployeeType = parent.getItemAtPosition(position).toString();
-                if (selectedEmployeeType.equals("Doctor") || selectedEmployeeType.equals("Assistant")) {
-                    editTextSpecializationDepartment.setVisibility(View.VISIBLE);
-                    editTextSpecializationDepartment.setHint(selectedEmployeeType.equals("Doctor") ? "specialization" : "department");
+                if (selectedEmployeeType.equals("Doctor")) {
+                    spinnerSpecialization.setAdapter(doctorSpecializationAdapter);
+                    spinnerSpecialization.setVisibility(View.VISIBLE);
+                    spinnerDepartment.setVisibility(View.GONE);
+                } else if (selectedEmployeeType.equals("Assistant")) {
+                    spinnerDepartment.setAdapter(assistantDepartmentAdapter);
+                    spinnerDepartment.setVisibility(View.VISIBLE);
+                    spinnerSpecialization.setVisibility(View.GONE);
                 } else {
-                    editTextSpecializationDepartment.setVisibility(View.GONE);
+                    spinnerSpecialization.setVisibility(View.GONE);
+                    spinnerDepartment.setVisibility(View.GONE);
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                editTextSpecializationDepartment.setVisibility(View.GONE);
+                spinnerSpecialization.setVisibility(View.GONE);
+                spinnerDepartment.setVisibility(View.GONE);
             }
         });
 
@@ -99,7 +113,8 @@ public class RoleCenterDashboard extends AppCompatActivity {
             String name = editTextName.getText().toString().trim();
             String phone = editTextPhone.getText().toString().trim();
             String email = editTextEmail.getText().toString().trim();
-            String specializationDepartment = editTextSpecializationDepartment.getText().toString().trim();
+            String specialization = spinnerSpecialization.getSelectedItem() != null ? spinnerSpecialization.getSelectedItem().toString() : "";
+            String department = spinnerDepartment.getSelectedItem() != null ? spinnerDepartment.getSelectedItem().toString() : "";
             String password = "111111";
 
             if (name.isEmpty() || phone.isEmpty() || email.isEmpty()) {
@@ -117,7 +132,7 @@ public class RoleCenterDashboard extends AppCompatActivity {
                         switch (selectedEmployeeType) {
                             case "Doctor":
                                 Doctor newDoctor = new Doctor(name, phone, email, uid);
-                                newDoctor.setSpecialization(specializationDepartment);
+                                newDoctor.setSpecialization(specialization);
                                 db.collection("doctors").document(uid).set(newDoctor)
                                         .addOnCompleteListener(task1 -> {
                                             if (task1.isSuccessful()) {
@@ -130,7 +145,7 @@ public class RoleCenterDashboard extends AppCompatActivity {
                                 break;
                             case "Assistant":
                                 Assistant newAssistant = new Assistant(name, phone, email, uid);
-                                newAssistant.setDepartment(specializationDepartment);
+                                newAssistant.setDepartment(department);
                                 db.collection("assistants").document(uid).set(newAssistant)
                                         .addOnCompleteListener(task1 -> {
                                             if (task1.isSuccessful()) {

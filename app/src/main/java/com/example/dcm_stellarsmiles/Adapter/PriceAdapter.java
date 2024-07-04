@@ -13,12 +13,15 @@ import com.example.dcm_stellarsmiles.Classes.Price.PriceItem;
 import com.example.dcm_stellarsmiles.R;
 
 import java.util.List;
+import java.util.Map;
 
 public class PriceAdapter extends RecyclerView.Adapter<PriceAdapter.PriceViewHolder> {
-    private List<PriceItem> priceItemList;
+    private Map<String, List<PriceItem>> priceItemMap;
+    private List<String> specializationList;
 
-    public PriceAdapter(List<PriceItem> priceItemList) {
-        this.priceItemList = priceItemList;
+    public PriceAdapter(Map<String, List<PriceItem>> priceItemMap, List<String> specializationList) {
+        this.priceItemMap = priceItemMap;
+        this.specializationList = specializationList;
     }
 
     @NonNull
@@ -30,27 +33,33 @@ public class PriceAdapter extends RecyclerView.Adapter<PriceAdapter.PriceViewHol
 
     @Override
     public void onBindViewHolder(@NonNull PriceViewHolder holder, int position) {
-        PriceItem priceItem = priceItemList.get(position);
+        String specialization = specializationList.get(position);
+        List<PriceItem> priceItems = priceItemMap.get(specialization);
         Context context = holder.itemView.getContext();
 
-        holder.appointmentTypeTextView.setText(priceItem.getAppointmentType());
-        holder.appointmentCostTextView.setText(String.format("%s %s", context.getString(R.string.appointment_cost), priceItem.getCost()));
-    }
+        holder.specializationTextView.setText(specialization);
 
+        StringBuilder priceDetails = new StringBuilder();
+        for (PriceItem item : priceItems) {
+            priceDetails.append(String.format("%s: %s%s\n", item.getAppointmentType(), item.getCost(), "$"));
+        }
+
+        holder.appointmentDetailsTextView.setText(priceDetails.toString().trim());
+    }
 
     @Override
     public int getItemCount() {
-        return priceItemList.size();
+        return specializationList.size();
     }
 
     public static class PriceViewHolder extends RecyclerView.ViewHolder {
-        TextView appointmentTypeTextView;
-        TextView appointmentCostTextView;
+        TextView specializationTextView;
+        TextView appointmentDetailsTextView;
 
         public PriceViewHolder(@NonNull View itemView) {
             super(itemView);
-            appointmentTypeTextView = itemView.findViewById(R.id.appointmentTypeTextView);
-            appointmentCostTextView = itemView.findViewById(R.id.appointmentCostTextView);
+            specializationTextView = itemView.findViewById(R.id.specializationTextView);
+            appointmentDetailsTextView = itemView.findViewById(R.id.appointmentDetailsTextView);
         }
     }
 }

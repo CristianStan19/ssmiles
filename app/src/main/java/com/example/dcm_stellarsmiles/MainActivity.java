@@ -3,9 +3,9 @@ package com.example.dcm_stellarsmiles;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
-
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -14,7 +14,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.dcm_stellarsmiles.Auth.LogIn;
 import com.example.dcm_stellarsmiles.Auth.Register;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,6 +26,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        View welcomeTextView = findViewById(R.id.tvWelcome);
+        Animation spinInAnimation = AnimationUtils.loadAnimation(this, R.anim.spin_in);
+        welcomeTextView.startAnimation(spinInAnimation);
 
         handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

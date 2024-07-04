@@ -276,7 +276,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             updateAvailableTimeSlots(consultationDoctor.getSelectedItem().toString(), date);
         };
 
-        datePickerDialog = new DatePickerDialog(this, dateSetListener, year, month, day) {
+        datePickerDialog = new DatePickerDialog(this, R.style.CustomDatePickerDialogTheme, dateSetListener, year, month, day) {
             @Override
             protected void onCreate(Bundle savedInstanceState) {
                 super.onCreate(savedInstanceState);
@@ -289,6 +289,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 updateAvailableDates(consultationDoctor.getSelectedItem().toString(), this);
             }
         };
+
 
         cancelButton.setOnClickListener(v -> dialog.dismiss());
 
@@ -422,6 +423,8 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         datePicker.setMinDate(availableDates.stream().min(Long::compare).orElse(System.currentTimeMillis()));
         datePicker.setMaxDate(availableDates.stream().max(Long::compare).orElse(System.currentTimeMillis()));
 
+        setDatePickerDisabledDates(datePicker, availableDays);
+
         datePicker.init(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), (view, year, monthOfYear, dayOfMonth) -> {
             String selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth);
             if (!availableDays.contains(selectedDate)) {
@@ -551,6 +554,51 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                         Log.w("Dashboard", "No doctor found or error getting doctor: ", task.getException());
                     }
                 });
+    }
+    private void setDatePickerDisabledDates(DatePicker datePicker, List<String> availableDates) {
+        Calendar calendar = Calendar.getInstance();
+        long minDate = datePicker.getMinDate();
+        long maxDate = datePicker.getMaxDate();
+
+        for (long date = minDate; date <= maxDate; date += (24 * 60 * 60 * 1000)) {
+            calendar.setTimeInMillis(date);
+            String formattedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d",
+                    calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
+
+            if (!availableDates.contains(formattedDate)) {
+                datePicker.updateDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+                View dayView = findDayView(datePicker, calendar.get(Calendar.DAY_OF_MONTH));
+                if (dayView != null) {
+                    dayView.setEnabled(false);
+                    dayView.setClickable(false);
+                }
+            }
+        }
+    }
+
+    private View findDayView(DatePicker datePicker, int day) {
+        try {
+            // Accessing the DatePicker's internal day grid layout
+            ViewGroup dayPickerView = (ViewGroup) datePicker.getChildAt(0);
+            for (int i = 0; i < dayPickerView.getChildCount(); i++) {
+                View view = dayPickerView.getChildAt(i);
+                if (view instanceof ViewGroup) {
+                    ViewGroup innerViewGroup = (ViewGroup) view;
+                    for (int j = 0; j < innerViewGroup.getChildCount(); j++) {
+                        View dayView = innerViewGroup.getChildAt(j);
+                        if (dayView instanceof TextView) {
+                            TextView dayTextView = (TextView) dayView;
+                            if (dayTextView.getText().toString().equals(String.valueOf(day))) {
+                                return dayView;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e("Dashboard", "Error accessing DatePicker day views", e);
+        }
+        return null;
     }
 
 
