@@ -38,6 +38,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.dcm_stellarsmiles.Adapter.CustomSpinnerAdapter;
 import com.example.dcm_stellarsmiles.Auth.LogIn;
 import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
 import com.example.dcm_stellarsmiles.Classes.Customer.Customer;
@@ -205,7 +206,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         textDurationValue = dialog.findViewById(R.id.textDurationValue);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         consultationSpinner = dialog.findViewById(R.id.consultationSpinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>(Constants.APPOINTMENT_COSTS.keySet()));
+        CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(this, android.R.layout.simple_spinner_item, new ArrayList<>(Constants.APPOINTMENT_COSTS.keySet()));
         adapter.setDropDownViewResource(R.layout.spinner_list_color);
         consultationSpinner.setAdapter(adapter);
         consultationDoctor = dialog.findViewById(R.id.consultationDoctor);
@@ -233,7 +234,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                                             doctorNames.add(doctorName);
                                         }
                                     }
-                                    ArrayAdapter<String> doctorAdapter = new ArrayAdapter<>(Dashboard.this, android.R.layout.simple_spinner_dropdown_item, doctorNames);
+                                    CustomSpinnerAdapter doctorAdapter = new CustomSpinnerAdapter(Dashboard.this, android.R.layout.simple_spinner_dropdown_item, doctorNames);
                                     doctorAdapter.setDropDownViewResource(R.layout.spinner_list_color);
                                     consultationDoctor.setAdapter(doctorAdapter);
                                     consultationDoctor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -472,7 +473,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                                             Toast.makeText(Dashboard.this, "No available time slots for the selected date.", Toast.LENGTH_SHORT).show();
                                         }
 
-                                        ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(Dashboard.this, android.R.layout.simple_spinner_dropdown_item, availableTimeSlots);
+                                        CustomSpinnerAdapter timeAdapter = new CustomSpinnerAdapter(Dashboard.this, android.R.layout.simple_spinner_dropdown_item, availableTimeSlots);
                                         timeAdapter.setDropDownViewResource(R.layout.spinner_list_color);
                                         timeIntervalSpinner.setAdapter(timeAdapter);
                                     } else {
