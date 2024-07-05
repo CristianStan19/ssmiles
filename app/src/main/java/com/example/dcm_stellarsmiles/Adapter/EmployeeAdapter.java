@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dcm_stellarsmiles.Classes.DatabaseHelper;
-import com.example.dcm_stellarsmiles.Classes.Employees.Doctor;
 import com.example.dcm_stellarsmiles.Classes.Employees.Employee;
 import com.example.dcm_stellarsmiles.R;
 
@@ -92,6 +91,12 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.Employ
                 break;
             case "Mihaela Ivan":
                 holder.ivEmployeeImage.setImageDrawable(context.getDrawable(R.drawable.receptionist1));
+                break;
+            case "Doina Radu":
+                holder.ivEmployeeImage.setImageDrawable(context.getDrawable(R.drawable.doctor6));
+                break;
+            case "Cristina Popescu":
+                holder.ivEmployeeImage.setImageDrawable(context.getDrawable(R.drawable.assistant1));
                 break;
             default:
                 // Set default image if no case matches
