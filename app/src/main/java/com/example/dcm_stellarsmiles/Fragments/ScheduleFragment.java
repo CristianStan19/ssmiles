@@ -1,15 +1,8 @@
 package com.example.dcm_stellarsmiles.Fragments;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.Fragment;
-import android.app.DatePickerDialog;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,11 +18,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
+
 import com.example.dcm_stellarsmiles.Auth.LogIn;
 import com.example.dcm_stellarsmiles.Classes.Schedule.Schedule;
 import com.example.dcm_stellarsmiles.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -149,7 +148,7 @@ public class ScheduleFragment extends Fragment {
             return;
         }
 
-        String selectedDateStr = getFormattedDate(selectedDate);
+        String selectedDateStr = getFormattedMonth(selectedDate);
 
         Schedule schedule = new Schedule(doctorName, selectedDateStr, availableDaysAndIntervals);
 
@@ -169,7 +168,7 @@ public class ScheduleFragment extends Fragment {
             return;
         }
 
-        String selectedDateStr = getFormattedDate(selectedDate);
+        String selectedDateStr = getFormattedMonth(selectedDate);
 
         db.collection("schedules").document(doctorID + "_" + selectedDateStr).get()
                 .addOnCompleteListener(task -> {
@@ -207,7 +206,7 @@ public class ScheduleFragment extends Fragment {
         // Hide the save button and show the schedule status
         btnSaveSchedule.setVisibility(View.GONE);
         textViewScheduleStatus.setVisibility(View.VISIBLE);
-        textViewScheduleStatus.setText("You have already done your schedule for the selected date.");
+        textViewScheduleStatus.setText("You have already done your schedule for the selected month.");
 
         // Show the edit button
         btnEditSchedule.setVisibility(View.VISIBLE);
@@ -218,7 +217,7 @@ public class ScheduleFragment extends Fragment {
         layoutDays.removeAllViews(); // Clear any existing views
         textViewScheduleStatus.setVisibility(View.GONE);
 
-        generateDaysLayoutForSelectedDate();
+        generateDaysLayoutForSelectedMonth();
 
         // Show save button and hide edit button
         btnSaveSchedule.setVisibility(View.VISIBLE);
@@ -242,17 +241,17 @@ public class ScheduleFragment extends Fragment {
     }
 
     private void updateDateButton() {
-        btnDate.setText(getFormattedDate(selectedDate));
+        btnDate.setText(getFormattedMonth(selectedDate));
     }
 
     private void generateUnavailableDaysLayout() {
         layoutDays.removeAllViews();
         availableDaysAndIntervals.clear();
 
-        generateDaysLayoutForSelectedDate();
+        generateDaysLayoutForSelectedMonth();
     }
 
-    private void generateDaysLayoutForSelectedDate() {
+    private void generateDaysLayoutForSelectedMonth() {
         layoutDays.removeAllViews();
 
         // Generate layout for all days of the current month and the next month
@@ -268,9 +267,15 @@ public class ScheduleFragment extends Fragment {
 
     private void addDaysToLayout(Calendar month) {
         int daysInMonth = month.getActualMaximum(Calendar.DAY_OF_MONTH);
+        Calendar today = Calendar.getInstance();
 
         for (int day = 1; day <= daysInMonth; day++) {
             month.set(Calendar.DAY_OF_MONTH, day);
+
+            if (month.before(today)) {
+                continue; // Skip past days
+            }
+
             String dateStr = getFormattedDate(month);
 
             LinearLayout dayLayout = new LinearLayout(getContext());
@@ -370,6 +375,13 @@ public class ScheduleFragment extends Fragment {
         }
     }
 
+    private String getFormattedMonth(Calendar date) {
+        int month = date.get(Calendar.MONTH) + 1;
+        int year = date.get(Calendar.YEAR);
+
+        return String.format("%02d-%04d", month, year);
+    }
+
     private String getFormattedDate(Calendar date) {
         int day = date.get(Calendar.DAY_OF_MONTH);
         int month = date.get(Calendar.MONTH) + 1;
@@ -378,3 +390,4 @@ public class ScheduleFragment extends Fragment {
         return String.format("%02d-%02d-%04d", day, month, year);
     }
 }
+

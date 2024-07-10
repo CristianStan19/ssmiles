@@ -1,8 +1,5 @@
 package com.example.dcm_stellarsmiles.Dashboard;
 
-import static com.example.dcm_stellarsmiles.Constants.Constants.APPOINTMENT_COSTS;
-
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -16,9 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -51,11 +46,7 @@ import com.example.dcm_stellarsmiles.Fragments.EmployeeFragment;
 import com.example.dcm_stellarsmiles.Fragments.HomeFragment;
 import com.example.dcm_stellarsmiles.Fragments.PriceFragment;
 import com.example.dcm_stellarsmiles.Fragments.ProfileFragment;
-import com.example.dcm_stellarsmiles.Fragments.SettingsFragment;
-import com.example.dcm_stellarsmiles.Fragments.ShareFragment;
 import com.example.dcm_stellarsmiles.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -66,14 +57,15 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class Dashboard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -82,11 +74,9 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
     FloatingActionButton fab;
     DrawerLayout drawerLayout;
     BottomNavigationView bottomNavigationView;
-    DatePickerDialog datePickerDialog;
-    Button btnDate, btnSchedule;
-    Spinner consultationDoctor, consultationSpinner;
-    Spinner timeIntervalSpinner;
+    Spinner spinnerDate, consultationDoctor, consultationSpinner, timeIntervalSpinner;
     TextView textCost, textDurationValue;
+    Button btnSchedule;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,8 +190,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         dialog.setContentView(R.layout.bottomsheetlayout);
         btnSchedule = dialog.findViewById(R.id.btnSchedule);
         ImageView cancelButton = dialog.findViewById(R.id.cancelButton);
-        btnDate = dialog.findViewById(R.id.btnDate);
-        btnDate.setText(getTodaysDate());
+        spinnerDate = dialog.findViewById(R.id.spinnerDate);
         textCost = dialog.findViewById(R.id.textCost);
         textDurationValue = dialog.findViewById(R.id.textDurationValue);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -263,35 +252,6 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             }
         });
 
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH);
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-
-        btnDate.setOnClickListener(v -> datePickerDialog.show());
-
-        DatePickerDialog.OnDateSetListener dateSetListener = (view, year1, month1, dayOfMonth) -> {
-            month1 = month1 + 1;
-            String date = makeDateString(dayOfMonth, month1, year1);
-            btnDate.setText(date);
-            updateAvailableTimeSlots(consultationDoctor.getSelectedItem().toString(), date);
-        };
-
-        datePickerDialog = new DatePickerDialog(this, R.style.CustomDatePickerDialogTheme, dateSetListener, year, month, day) {
-            @Override
-            protected void onCreate(Bundle savedInstanceState) {
-                super.onCreate(savedInstanceState);
-                getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
-            }
-
-            @Override
-            public void onDateChanged(DatePicker view, int year, int month, int day) {
-                super.onDateChanged(view, year, month, day);
-                updateAvailableDates(consultationDoctor.getSelectedItem().toString(), this);
-            }
-        };
-
-
         cancelButton.setOnClickListener(v -> dialog.dismiss());
 
         btnSchedule.setOnClickListener(v -> {
@@ -303,7 +263,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 db.runTransaction(transaction -> {
                     DocumentSnapshot snapshot = transaction.get(customerDocRef);
                     Customer customer = snapshot.toObject(Customer.class);
-                    String appointmentDate = btnDate.getText().toString();
+                    String appointmentDate = spinnerDate.getSelectedItem().toString();
                     String type = consultationSpinner.getSelectedItem().toString();
                     String doctor = consultationDoctor.getSelectedItem().toString();
                     String time = timeIntervalSpinner.getSelectedItem().toString();
@@ -371,68 +331,66 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference schedulesRef = db.collection("schedules");
 
-        schedulesRef.whereEqualTo("doctorID", doctorID).get()
+        // Get current month and year
+        Calendar calendar = Calendar.getInstance();
+        int month = calendar.get(Calendar.MONTH) + 1; // Calendar.MONTH is zero-based
+        int year = calendar.get(Calendar.YEAR);
+
+        // Construct the document ID
+        String documentID = doctorID + "_" + String.format("%02d", month) + "-" + year;
+
+        schedulesRef.document(documentID).get()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        List<Schedule> schedules = new ArrayList<>();
-                        for (DocumentSnapshot document : task.getResult()) {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
                             Schedule schedule = document.toObject(Schedule.class);
+                            List<Schedule> schedules = new ArrayList<>();
                             schedules.add(schedule);
+                            setAvailableDatesAndTimes(schedules);
+                        } else {
+                            Log.w("Dashboard", "No schedule available for document ID: " + documentID);
                         }
-                        setAvailableDatesAndTimes(schedules);
                     } else {
-                        Log.w("Dashboard", "No schedule available or error getting schedules: ", task.getException());
+                        Log.w("Dashboard", "Error getting schedules: ", task.getException());
                     }
                 });
     }
 
 
     private void setAvailableDatesAndTimes(List<Schedule> schedules) {
-        List<Long> availableDates = new ArrayList<>();
         List<String> availableDays = new ArrayList<>();
 
-        Calendar cal = Calendar.getInstance();
         for (Schedule schedule : schedules) {
-            for (Map.Entry<String, List<String>> entry : schedule.getDays().entrySet()) {
-                String date = entry.getKey();
-                List<String> intervals = entry.getValue();
-
-                String[] dateParts = date.split("-");
-                if (dateParts.length != 3) {
-                    Log.e("Dashboard", "Invalid date format: " + date);
-                    continue;
-                }
-
-                try {
-                    int day = Integer.parseInt(dateParts[0]);
-                    int month = Integer.parseInt(dateParts[1]) - 1; // Calendar month is 0-based
-                    int year = Integer.parseInt(dateParts[2]);
-
-                    cal.set(year, month, day);
-
-                    for (String interval : intervals) {
-                        availableDates.add(cal.getTimeInMillis());
-                        availableDays.add(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, day));
-                    }
-                } catch (NumberFormatException e) {
-                    Log.e("Dashboard", "Error parsing date parts: " + date, e);
-                }
-            }
+            availableDays.addAll(schedule.getDays().keySet());
         }
 
-        DatePicker datePicker = datePickerDialog.getDatePicker();
-        datePicker.setMinDate(availableDates.stream().min(Long::compare).orElse(System.currentTimeMillis()));
-        datePicker.setMaxDate(availableDates.stream().max(Long::compare).orElse(System.currentTimeMillis()));
+        // Sort dates
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        Collections.sort(availableDays, new Comparator<String>() {
+            @Override
+            public int compare(String date1, String date2) {
+                try {
+                    return dateFormat.parse(date1).compareTo(dateFormat.parse(date2));
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+        });
 
-        setDatePickerDisabledDates(datePicker, availableDays);
-
-        datePicker.init(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), (view, year, monthOfYear, dayOfMonth) -> {
-            String selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth);
-            if (!availableDays.contains(selectedDate)) {
-                Toast.makeText(Dashboard.this, "Selected date is not available.", Toast.LENGTH_SHORT).show();
-                datePicker.updateDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
-            } else {
+        CustomSpinnerAdapter dateAdapter = new CustomSpinnerAdapter(this, android.R.layout.simple_spinner_dropdown_item, availableDays);
+        dateAdapter.setDropDownViewResource(R.layout.spinner_list_color);
+        spinnerDate.setAdapter(dateAdapter);
+        spinnerDate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedDate = spinnerDate.getSelectedItem().toString();
                 updateAvailableTimeSlots(consultationDoctor.getSelectedItem().toString(), selectedDate);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Handle case when no date is selected
             }
         });
     }
@@ -510,7 +468,6 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         return timeSlots;
     }
 
-
     private boolean isOverlapping(String slot, String appointmentTime, int appointmentDuration) {
         int slotHour = Integer.parseInt(slot.split(":")[0]);
         int slotMinute = Integer.parseInt(slot.split(":")[1]);
@@ -524,83 +481,4 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
 
         return (slotStartMinutes < appointmentEndMinutes && slotEndMinutes > appointmentStartMinutes);
     }
-
-    private String getTodaysDate() {
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH);
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        month = month + 1;
-        return makeDateString(day, month, year);
-    }
-
-    private String makeDateString(int dayOfMonth, int month, int year) {
-        return String.format(Locale.getDefault(), "%02d-%02d-%04d", dayOfMonth, month, year);
-    }
-
-    private void updateAvailableDates(String doctorName, DatePickerDialog datePickerDialog) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference doctorsRef = db.collection("doctors");
-
-        doctorsRef.whereEqualTo("name", doctorName).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        DocumentSnapshot doctorDoc = task.getResult().getDocuments().get(0);
-                        String doctorID = doctorDoc.getString("employeeID");
-
-                        if (doctorID != null) {
-                            fetchSchedulesForDoctor(doctorID);
-                        }
-                    } else {
-                        Log.w("Dashboard", "No doctor found or error getting doctor: ", task.getException());
-                    }
-                });
-    }
-    private void setDatePickerDisabledDates(DatePicker datePicker, List<String> availableDates) {
-        Calendar calendar = Calendar.getInstance();
-        long minDate = datePicker.getMinDate();
-        long maxDate = datePicker.getMaxDate();
-
-        for (long date = minDate; date <= maxDate; date += (24 * 60 * 60 * 1000)) {
-            calendar.setTimeInMillis(date);
-            String formattedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d",
-                    calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
-
-            if (!availableDates.contains(formattedDate)) {
-                datePicker.updateDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-                View dayView = findDayView(datePicker, calendar.get(Calendar.DAY_OF_MONTH));
-                if (dayView != null) {
-                    dayView.setEnabled(false);
-                    dayView.setClickable(false);
-                }
-            }
-        }
-    }
-
-    private View findDayView(DatePicker datePicker, int day) {
-        try {
-            // Accessing the DatePicker's internal day grid layout
-            ViewGroup dayPickerView = (ViewGroup) datePicker.getChildAt(0);
-            for (int i = 0; i < dayPickerView.getChildCount(); i++) {
-                View view = dayPickerView.getChildAt(i);
-                if (view instanceof ViewGroup) {
-                    ViewGroup innerViewGroup = (ViewGroup) view;
-                    for (int j = 0; j < innerViewGroup.getChildCount(); j++) {
-                        View dayView = innerViewGroup.getChildAt(j);
-                        if (dayView instanceof TextView) {
-                            TextView dayTextView = (TextView) dayView;
-                            if (dayTextView.getText().toString().equals(String.valueOf(day))) {
-                                return dayView;
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Log.e("Dashboard", "Error accessing DatePicker day views", e);
-        }
-        return null;
-    }
-
-
 }

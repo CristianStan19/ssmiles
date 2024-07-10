@@ -26,7 +26,6 @@ import com.example.dcm_stellarsmiles.Classes.Employees.Doctor;
 import com.example.dcm_stellarsmiles.Classes.Employees.Receptionist;
 import com.example.dcm_stellarsmiles.R;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -40,7 +39,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class RoleCenterDashboard extends AppCompatActivity {
 
@@ -258,12 +256,39 @@ public class RoleCenterDashboard extends AppCompatActivity {
 
     private void deleteEmployee(String collection, String id) {
         DocumentReference docRef = db.collection(collection).document(id);
-        docRef.delete().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Toast.makeText(RoleCenterDashboard.this, "Employee deleted", Toast.LENGTH_SHORT).show();
-                recreate();
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                String email = task.getResult().getString("email");
+                docRef.delete().addOnCompleteListener(task1 -> {
+                    if (task1.isSuccessful()) {
+                        if (email != null) {
+                            deleteUserAuth(email);
+                        }
+                        Toast.makeText(RoleCenterDashboard.this, "Employee deleted", Toast.LENGTH_SHORT).show();
+                        recreate();
+                    } else {
+                        Toast.makeText(RoleCenterDashboard.this, "Error deleting document: " + task1.getException(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             } else {
-                Toast.makeText(RoleCenterDashboard.this, "Error deleting document: " + task.getException(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(RoleCenterDashboard.this, "Error retrieving document: " + task.getException(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void deleteUserAuth(String email) {
+        auth.signInWithEmailAndPassword(email, "111111").addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                FirebaseUser user = task.getResult().getUser();
+                if (user != null) {
+                    user.delete().addOnCompleteListener(task1 -> {
+                        if (!task1.isSuccessful()) {
+                            Toast.makeText(RoleCenterDashboard.this, "Error deleting user auth: " + task1.getException(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            } else {
+                Toast.makeText(RoleCenterDashboard.this, "Error signing in user for deletion: " + task.getException(), Toast.LENGTH_SHORT).show();
             }
         });
     }
