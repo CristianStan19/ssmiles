@@ -39,5 +39,12 @@
             android:layout_height="wrap_content"
             android:text="Employee Type"
             android:textColor="@color/darkPurple" />
+
+        <TextView
+            android:id="@+id/tvEmployeeRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rating"
+            android:textColor="@color/darkPurple" />
     </LinearLayout>
 </LinearLayout>

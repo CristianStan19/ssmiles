@@ -47,6 +47,8 @@ import com.example.dcm_stellarsmiles.Fragments.HomeFragment;
 import com.example.dcm_stellarsmiles.Fragments.PriceFragment;
 import com.example.dcm_stellarsmiles.Fragments.ProfileFragment;
 import com.example.dcm_stellarsmiles.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -206,8 +208,30 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String type = (String) parent.getItemAtPosition(position);
-                int cost = Constants.APPOINTMENT_COSTS.getOrDefault(type, 0);
-                textCost.setText(String.valueOf(cost));
+
+                DocumentReference docRef = db.collection("customers").document(user.getUid());
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                long visits = document.getLong("visits");
+                                int cost = Constants.APPOINTMENT_COSTS.getOrDefault(type, 0);
+                                if(visits >= Constants.LOYALITY_REQUIRMENT) {
+                                    cost = (int) (cost - cost * Constants.LOYALITY_DISCOUNT);
+                                }
+                                textCost.setText(String.valueOf(cost));
+                            } else {
+                                Log.d("Firestore", "No such document");
+                            }
+                        } else {
+                            Log.d("Firestore", "get failed with ", task.getException());
+                        }
+                    }
+                });
+
+
                 int duration = Constants.APPOINTMENT_DURATIONS.getOrDefault(type, 0);
                 textDurationValue.setText(duration + " minutes");
 

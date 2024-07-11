@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.dcm_stellarsmiles.Constants.Constants;
 import com.example.dcm_stellarsmiles.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -21,7 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ProfileFragment extends Fragment {
 
-    private TextView tvFN, tvEA, tvBD, tvPN, tvSK, tvDK, tvAC;
+    private TextView tvFN, tvEA, tvBD, tvPN, tvSK, tvDK, tvAC,tvLoyalCustomer;
 
     private FirebaseFirestore db;
 
@@ -37,6 +38,7 @@ public class ProfileFragment extends Fragment {
         tvSK = view.findViewById(R.id.tvSmoker);
         tvDK = view.findViewById(R.id.tvDrinker);
         tvAC = view.findViewById(R.id.tvAppointmentsCompleted);
+        tvLoyalCustomer = view.findViewById(R.id.tvLoyalCustomer);
 
         db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -70,6 +72,11 @@ public class ProfileFragment extends Fragment {
                                 tvDK.setText(drinkerString + ": " + drinker);
                                 tvSK.setText(smokerString + ": " + smoker);
                                 tvAC.setText(appointmentsCompletedString + ": " + visits);
+                                if (visits >= Constants.LOYALITY_REQUIRMENT) {
+                                    tvLoyalCustomer.setVisibility(View.VISIBLE);
+                                } else {
+                                    tvLoyalCustomer.setVisibility(View.GONE);
+                                }
                             } else {
                                 Log.d("Firestore", "No document found for customer ID: " + customerID);
                             }

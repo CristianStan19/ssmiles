@@ -13,7 +13,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.dcm_stellarsmiles.Classes.DatabaseHelper;
 import com.example.dcm_stellarsmiles.Classes.Employees.Employee;
 import com.example.dcm_stellarsmiles.R;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.EmployeeViewHolder> {
@@ -38,6 +42,8 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.Employ
         Employee employee = employees.get(position);
         holder.tvEmployeeName.setText(employee.getName());
         holder.tvEmployeeType.setText(employee.getPosition());
+        holder.tvEmployeeRating.setText(""); // Clear previous rating
+
         DatabaseHelper dbHelper = new DatabaseHelper();
         switch (employee.getPosition()) {
             case "Doctor":
@@ -45,6 +51,7 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.Employ
                     @Override
                     public void onSuccess(String specialization) {
                         holder.tvEmployeeType.setText(specialization);
+                        fetchAverageRating(employee.getName(), holder.tvEmployeeRating);
                     }
 
                     @Override
@@ -73,6 +80,8 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.Employ
                 holder.tvEmployeeType.setText(employee.getPosition());
                 break;
         }
+
+        // Set image based on employee name
         switch (employee.getName()) {
             case "Mihai Dorcea":
                 holder.ivEmployeeImage.setImageDrawable(context.getDrawable(R.drawable.doctor1));
@@ -105,6 +114,33 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.Employ
         }
     }
 
+    private void fetchAverageRating(String doctorName, TextView tvEmployeeRating) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference appointmentsRef = db.collection("appointments");
+
+        appointmentsRef.whereEqualTo("doctor", doctorName)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        List<Double> ratings = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Double rating = document.getDouble("rating");
+                            if (rating != null) {
+                                ratings.add(rating);
+                            }
+                        }
+                        if (ratings.size() >= 3) {
+                            double avgRating = ratings.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+                            tvEmployeeRating.setText(String.format("Average Rating: %.2f", avgRating));
+                        } else {
+                            tvEmployeeRating.setText("Not enough ratings available");
+                        }
+                    } else {
+                        tvEmployeeRating.setText("No ratings available");
+                    }
+                });
+    }
+
     @Override
     public int getItemCount() {
         return employees.size();
@@ -112,13 +148,14 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.Employ
 
     public static class EmployeeViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tvEmployeeName, tvEmployeeType;
+        private TextView tvEmployeeName, tvEmployeeType, tvEmployeeRating;
         private ImageView ivEmployeeImage;
 
         public EmployeeViewHolder(View itemView) {
             super(itemView);
             tvEmployeeName = itemView.findViewById(R.id.tvEmployeeName);
             tvEmployeeType = itemView.findViewById(R.id.tvEmployeeType);
+            tvEmployeeRating = itemView.findViewById(R.id.tvEmployeeRating);
             ivEmployeeImage = itemView.findViewById(R.id.ivEmployeeImage);
         }
     }

@@ -79,6 +79,7 @@
     <string name="_0_minutes">0 minutes</string>
     <string name="appointment_time">Appointment Time:</string>
     <string name="hour">Hour:</string>
+    <string name="you_are_now_a_loyal_customer_we_thank_you">You are now a loyal customer, we thank you!</string>
 
     <string-array name="employee_types">
         <item>Doctor</item>
