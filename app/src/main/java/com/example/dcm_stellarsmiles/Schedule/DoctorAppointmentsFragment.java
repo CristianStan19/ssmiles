@@ -2,12 +2,6 @@ package com.example.dcm_stellarsmiles.Schedule;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +12,17 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.dcm_stellarsmiles.Adapter.DoctorAppointmentsAdapter;
 import com.example.dcm_stellarsmiles.Adapter.SpaceItemDecoration;
 import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
 import com.example.dcm_stellarsmiles.Constants.Constants;
+import com.example.dcm_stellarsmiles.Fragments.RescheduleAppointmentDialogFragment;
 import com.example.dcm_stellarsmiles.Intefaces.OnCancelAppointmentClickListener;
 import com.example.dcm_stellarsmiles.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,7 +30,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -127,33 +127,28 @@ public class DoctorAppointmentsFragment extends Fragment implements OnCancelAppo
         }
 
         String userUID = user.getUid();
-        DocumentReference doctorRef = db.collection("doctors").document(userUID);
-
-        doctorRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful() && task.getResult() != null) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        String doctorFullName = document.getString("name");
-                        if (doctorFullName != null) {
-                            fetchAppointmentsForDoctor(doctorFullName);
-                        } else {
-                            Toast.makeText(getContext(), "Doctor's name not found", Toast.LENGTH_SHORT).show();
-                        }
+        db.collection("doctors").document(userUID).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    String doctorName = document.getString("name");
+                    if (doctorName != null) {
+                        fetchAppointmentsForDoctor(doctorName);
                     } else {
-                        Toast.makeText(getContext(), "Doctor document does not exist", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Doctor's name not found", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(getContext(), "Failed to fetch doctor details", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Doctor document does not exist", Toast.LENGTH_SHORT).show();
                 }
+            } else {
+                Toast.makeText(getContext(), "Failed to fetch doctor details", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void fetchAppointmentsForDoctor(String doctorFullName) {
+    private void fetchAppointmentsForDoctor(String doctorName) {
         CollectionReference appointmentsRef = db.collection("appointments");
-        appointmentsRef.whereEqualTo("doctor", doctorFullName)
+        appointmentsRef.whereEqualTo("doctor", doctorName)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -329,30 +324,29 @@ public class DoctorAppointmentsFragment extends Fragment implements OnCancelAppo
         updateAppointmentInFirestore(appointment); // Call a new method to update Firestore
     }
 
-    @Override
     public void onRescheduleAppointment(Appointment appointment) {
-        showDatePickerDialog(appointment); // Show date picker dialog to select new date
+        RescheduleAppointmentDialogFragment dialogFragment = new RescheduleAppointmentDialogFragment(
+                appointment.getDoctor(),
+                (newDate, newTime) -> {
+                    appointment.setAppointmentDate(newDate);
+                    appointment.setTime(newTime);
+                    updateAppointmentDate(appointment, newDate, newTime);
+                }
+        );
+        dialogFragment.show(getChildFragmentManager(), "RescheduleAppointmentDialogFragment");
     }
 
-    private void showDatePickerDialog(Appointment appointment) {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        datePickerDialog = new DatePickerDialog(
-                getContext(),
-                (view, year1, month1, dayOfMonth) -> {
-                    month1 += 1;
-                    String selectedDate = makeDateString(dayOfMonth, month1, year1);
-                    appointment.setAppointmentDate(selectedDate);
-                    updateAppointmentInFirestore(appointment);
-                },
-                year, month, day);
-        datePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
-        calendar.add(Calendar.DAY_OF_MONTH, 7);
-        datePickerDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
-        datePickerDialog.show();
+    private void updateAppointmentDate(Appointment appointment, String newDate, String newTime) {
+        db.collection("appointments").document(appointment.getAppointmentId())
+                .update("appointmentDate", newDate, "time", newTime, "appointmentStatus", "rescheduled")
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getContext(), "Appointment rescheduled", Toast.LENGTH_SHORT).show();
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(getContext(), "Failed to reschedule appointment", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void updateAppointmentInFirestore(Appointment appointment) {

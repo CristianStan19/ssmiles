@@ -2,11 +2,6 @@ package com.example.dcm_stellarsmiles.Fragments;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +11,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dcm_stellarsmiles.Adapter.ReceptionistAppointmentsAdapter;
 import com.example.dcm_stellarsmiles.Adapter.SpaceItemDecoration;
@@ -296,8 +296,31 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
 
     @Override
     public void onRescheduleAppointment(Appointment appointment) {
-        showDatePickerDialog(appointment);
+        RescheduleAppointmentDialogFragment dialogFragment = new RescheduleAppointmentDialogFragment(
+                appointment.getDoctor(),
+                (newDate, newTime) -> {
+                    appointment.setAppointmentDate(newDate);
+                    appointment.setTime(newTime);
+                    updateAppointmentDate(appointment, newDate, newTime);
+                }
+        );
+        dialogFragment.show(getChildFragmentManager(), "RescheduleAppointmentDialogFragment");
     }
+
+    private void updateAppointmentDate(Appointment appointment, String newDate, String newTime) {
+        db.collection("appointments").document(appointment.getAppointmentId())
+                .update("appointmentDate", newDate, "time", newTime, "appointmentStatus", "rescheduled")
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getContext(), "Appointment rescheduled", Toast.LENGTH_SHORT).show();
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(getContext(), "Failed to reschedule appointment", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
 
     @Override
     public void onCompleteAppointment(Appointment appointment) {
