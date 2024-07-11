@@ -150,7 +150,7 @@ public class ScheduleFragment extends Fragment {
 
         String selectedDateStr = getFormattedMonth(selectedDate);
 
-        Schedule schedule = new Schedule(doctorName, selectedDateStr, availableDaysAndIntervals);
+        Schedule schedule = new Schedule(doctorName, selectedDateStr, availableDaysAndIntervals, unavailableDays);
 
         db.collection("schedules").document(doctorID + "_" + selectedDateStr).set(schedule)
                 .addOnCompleteListener(task -> {
@@ -175,7 +175,12 @@ public class ScheduleFragment extends Fragment {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
-                            lockSchedule();
+                            Schedule schedule = document.toObject(Schedule.class);
+                            if (schedule != null) {
+                                availableDaysAndIntervals = schedule.getDays();
+                                unavailableDays = schedule.getUnavailableDays() != null ? schedule.getUnavailableDays() : new HashMap<>();
+                                lockSchedule();
+                            }
                         } else {
                             generateUnavailableDaysLayout();
                         }
@@ -185,22 +190,25 @@ public class ScheduleFragment extends Fragment {
                 });
     }
 
+
     private void lockSchedule() {
         layoutDays.removeAllViews(); // Clear any existing views
 
         // Show the days the doctor marked as unavailable
         for (String day : unavailableDays.keySet()) {
-            LinearLayout dayLayout = new LinearLayout(getContext());
-            dayLayout.setOrientation(LinearLayout.HORIZONTAL);
-            dayLayout.setPadding(16, 8, 16, 8);
+            if (unavailableDays.get(day)) {
+                LinearLayout dayLayout = new LinearLayout(getContext());
+                dayLayout.setOrientation(LinearLayout.HORIZONTAL);
+                dayLayout.setPadding(16, 8, 16, 8);
 
-            TextView dayText = new TextView(getContext());
-            dayText.setText(day);
-            dayText.setTextColor(getResources().getColor(R.color.darkPurple));
-            dayText.setTextSize(16);
+                TextView dayText = new TextView(getContext());
+                dayText.setText(day);
+                dayText.setTextColor(getResources().getColor(R.color.darkPurple));
+                dayText.setTextSize(16);
 
-            dayLayout.addView(dayText);
-            layoutDays.addView(dayLayout);
+                dayLayout.addView(dayText);
+                layoutDays.addView(dayLayout);
+            }
         }
 
         // Hide the save button and show the schedule status
@@ -212,6 +220,7 @@ public class ScheduleFragment extends Fragment {
         btnEditSchedule.setVisibility(View.VISIBLE);
         btnEditSchedule.setOnClickListener(v -> editSchedule());
     }
+
 
     private void editSchedule() {
         layoutDays.removeAllViews(); // Clear any existing views
@@ -250,6 +259,8 @@ public class ScheduleFragment extends Fragment {
 
         generateDaysLayoutForSelectedMonth();
     }
+
+
 
     private void generateDaysLayoutForSelectedMonth() {
         layoutDays.removeAllViews();
@@ -296,7 +307,7 @@ public class ScheduleFragment extends Fragment {
             cannotComeCheckbox.setTextSize(16);
 
             // Set the checkbox state based on the unavailableDays map
-            cannotComeCheckbox.setChecked(unavailableDays.containsKey(dateStr));
+            cannotComeCheckbox.setChecked(unavailableDays.containsKey(dateStr) && unavailableDays.get(dateStr));
 
             cannotComeCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
@@ -360,7 +371,6 @@ public class ScheduleFragment extends Fragment {
             layoutDays.addView(dayLayout);
         }
     }
-
     private void updateAvailableIntervals(String date, Spinner startHourSpinner, Spinner endHourSpinner) {
         String startHour = startHourSpinner.getSelectedItem().toString();
         String endHour = endHourSpinner.getSelectedItem().toString();

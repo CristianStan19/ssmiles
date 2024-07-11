@@ -437,7 +437,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                         }
 
                         // Fetch schedule for the doctor
-                        schedulesRef.whereEqualTo("doctorID", doctorName)
+                        schedulesRef.whereEqualTo("doctorName", doctorName)
                                 .get()
                                 .addOnCompleteListener(scheduleTask -> {
                                     if (scheduleTask.isSuccessful() && !scheduleTask.getResult().isEmpty()) {
