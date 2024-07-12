@@ -21,7 +21,7 @@
     <string name="subscriptions">Subscriptions</string>
     <string name="library">Library</string>
     <string name="shorts">Shorts</string>
-    <string name="birth_date">Birth Date (DD/MM/YYYY)</string>
+    <string name="birth_date">Birth Date (DD/MON/YYYY)</string>
     <string name="cnp">CNP</string>
     <string name="full_name">Full name</string>
     <string name="profile">Profile</string>

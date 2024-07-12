@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dcm_stellarsmiles.Classes.DatabaseHelper;
 import com.example.dcm_stellarsmiles.Classes.Employees.Employee;
+import com.example.dcm_stellarsmiles.Constants.Constants;
 import com.example.dcm_stellarsmiles.R;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -125,7 +126,8 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.Employ
                         List<Double> ratings = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Double rating = document.getDouble("rating");
-                            if (rating != null) {
+                            String appointmenStatus = document.getString("appointmentStatus");
+                            if (rating != 0 && appointmenStatus.equals(Constants.APP_COMPLETED) ) {
                                 ratings.add(rating);
                             }
                         }
