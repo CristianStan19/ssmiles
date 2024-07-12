@@ -67,7 +67,7 @@
     <string name="save_schedule">Save Schedule</string>
     <string name="sunday">Sunday</string>
     <string name="schedule_for_the_week">Schedule for the week</string>
-    <string name="you_have_already_done_your_schedule_for_the_month">You have already done your schedule for the month!</string>
+    <string name="you_have_already_done_your_schedule_for_the_month">You have already done your schedule! The Dates Shown are the ones mentioned for not coming!</string>
     <string name="reschedule">Reschedule</string>
     <string name="patient">Patient:</string>
     <string name="select_month">Select Month</string>
@@ -80,6 +80,7 @@
     <string name="appointment_time">Appointment Time:</string>
     <string name="hour">Hour:</string>
     <string name="you_are_now_a_loyal_customer_we_thank_you">You are now a loyal customer, we thank you!</string>
+    <string name="you_have_already_done_your_schedule_the_dates_shown_are_the_one_mentioned_for_not_coming">You have already done your schedule! The Dates Shown are the one mentioned for not coming!</string>
 
     <string-array name="employee_types">
         <item>Doctor</item>

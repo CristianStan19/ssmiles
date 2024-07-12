@@ -214,7 +214,7 @@ public class ScheduleFragment extends Fragment {
         // Hide the save button and show the schedule status
         btnSaveSchedule.setVisibility(View.GONE);
         textViewScheduleStatus.setVisibility(View.VISIBLE);
-        textViewScheduleStatus.setText("You have already done your schedule for the selected month.");
+        textViewScheduleStatus.setText(R.string.you_have_already_done_your_schedule_the_dates_shown_are_the_one_mentioned_for_not_coming);
 
         // Show the edit button
         btnEditSchedule.setVisibility(View.VISIBLE);
