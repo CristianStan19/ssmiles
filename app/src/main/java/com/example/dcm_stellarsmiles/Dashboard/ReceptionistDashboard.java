@@ -21,6 +21,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.dcm_stellarsmiles.Auth.LogIn;
+import com.example.dcm_stellarsmiles.Fragments.CustomerFragment;
 import com.example.dcm_stellarsmiles.Fragments.ReceptionistAppointmentsFragment;
 import com.example.dcm_stellarsmiles.Fragments.ScheduleFragment;
 import com.example.dcm_stellarsmiles.R;
@@ -99,7 +100,9 @@ public class ReceptionistDashboard extends AppCompatActivity implements Navigati
             Intent intent = new Intent(getApplicationContext(), LogIn.class);
             startActivity(intent);
             finish();
-        }
+        } else if (menuItem.getItemId() == R.id.Patients_Rec) {
+             replaceFragment(new CustomerFragment());
+         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }

@@ -13,6 +13,11 @@
             android:id="@+id/Appointments_Doctor"
             android:icon="@drawable/event"
             android:title="@string/appointments"/>
+        <item
+            android:id="@+id/Patients_Doctor"
+            android:icon="@drawable/patients"
+            android:title="@string/patients"/>
+
 
     </group>
     <item

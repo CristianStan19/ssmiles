@@ -21,6 +21,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.dcm_stellarsmiles.Auth.LogIn;
 import com.example.dcm_stellarsmiles.Fragments.AboutUsFragment;
+import com.example.dcm_stellarsmiles.Fragments.CustomerFragment;
 import com.example.dcm_stellarsmiles.Fragments.ProfileFragment;
 import com.example.dcm_stellarsmiles.R;
 import com.example.dcm_stellarsmiles.Schedule.DoctorAppointmentsFragment;
@@ -95,6 +96,9 @@ public class EmployeeDashboard extends AppCompatActivity implements NavigationVi
         else if (menuItem.getItemId() == R.id.Appointments_Doctor)
         {
             replaceFragment(new DoctorAppointmentsFragment());
+        }
+        else if (menuItem.getItemId() == R.id.Patients_Doctor) {
+            replaceFragment(new CustomerFragment());
         }
         else if (menuItem.getItemId() == R.id.Logout_Doctor)
         {

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/rounded_bk">
+
+    <TextView
+        android:id="@+id/tvFullName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/full_name"
+        android:textColor="@color/darkPurple"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvBirthDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/birth_date"
+        android:textColor="@color/darkPurple"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvSmoker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/smoker"
+        android:textColor="@color/darkPurple"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvDrinker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/drinker"
+        android:textColor="@color/darkPurple"
+        android:textStyle="bold"
+        android:textSize="18sp" />
+</LinearLayout>

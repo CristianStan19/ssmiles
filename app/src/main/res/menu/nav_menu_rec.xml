@@ -9,6 +9,10 @@
             android:id="@+id/Appointments_Rec"
             android:icon="@drawable/event"
             android:title="@string/appointments"/>
+        <item
+            android:id="@+id/Patients_Rec"
+            android:icon="@drawable/patients"
+            android:title="@string/patients"/>
 
     </group>
     <item
