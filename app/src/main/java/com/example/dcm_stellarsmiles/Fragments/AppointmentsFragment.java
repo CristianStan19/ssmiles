@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dcm_stellarsmiles.Adapter.AppointmentsAdapter;
+import com.example.dcm_stellarsmiles.Adapter.CustomSpinnerAdapter;
 import com.example.dcm_stellarsmiles.Adapter.SpaceItemDecoration;
 import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
 import com.example.dcm_stellarsmiles.Constants.Constants;
@@ -63,7 +64,7 @@ public class AppointmentsFragment extends Fragment implements OnCancelAppointmen
         spinnerDoctors = view.findViewById(R.id.spinnerDoctors);
         spinnerStatuses = view.findViewById(R.id.spinnerStatuses);
         spinnerAppointmentTypes = view.findViewById(R.id.spinnerAppointmentTypes);
-        btnPickDate = view.findViewById(R.id.btnPickDate);
+
 
         int spaceHeight = getResources().getDimensionPixelSize(R.dimen.dp_12);
         appointmentsRecyclerView.addItemDecoration(new SpaceItemDecoration(spaceHeight));
@@ -121,7 +122,7 @@ public class AppointmentsFragment extends Fragment implements OnCancelAppointmen
                                     doctorNames.add(fullName);
                                 }
                             }
-                            ArrayAdapter<String> doctorsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, doctorNames);
+                            CustomSpinnerAdapter doctorsAdapter = new CustomSpinnerAdapter(getContext(), android.R.layout.simple_spinner_item, doctorNames);
                             doctorsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                             spinnerDoctors.setAdapter(doctorsAdapter);
                         } else {
@@ -139,14 +140,14 @@ public class AppointmentsFragment extends Fragment implements OnCancelAppointmen
         statuses.add(Constants.APP_ON_GOING);
         statuses.add(Constants.APP_CANCELED);
         statuses.add("rescheduled");
-        ArrayAdapter<String> statusesAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, statuses);
+        CustomSpinnerAdapter statusesAdapter = new CustomSpinnerAdapter(getContext(), android.R.layout.simple_spinner_item, statuses);
         statusesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerStatuses.setAdapter(statusesAdapter);
 
         // Populate spinner with appointment types
         List<String> appointmentTypes = new ArrayList<>(Constants.APPOINTMENT_COSTS.keySet());
         appointmentTypes.add(0, "All Types");
-        ArrayAdapter<String> appointmentTypesAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, appointmentTypes);
+        CustomSpinnerAdapter appointmentTypesAdapter = new CustomSpinnerAdapter(getContext(), android.R.layout.simple_spinner_item, appointmentTypes);
         appointmentTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerAppointmentTypes.setAdapter(appointmentTypesAdapter);
 
@@ -191,17 +192,7 @@ public class AppointmentsFragment extends Fragment implements OnCancelAppointmen
     }
 
     private void setupDatePicker() {
-        btnPickDate.setOnClickListener(v -> {
-            final Calendar calendar = Calendar.getInstance();
-            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
-                    (view, year, month, dayOfMonth) -> {
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM/yyyy");
-                        selectedDate = String.format("%02d/%s/%d", dayOfMonth, getMonthFormat(month + 1), year);
-                        filterAppointments();
-                        Toast.makeText(getContext(), "Selected Date: " + selectedDate, Toast.LENGTH_SHORT).show();
-                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-            datePickerDialog.show();
-        });
+
     }
 
     private String getMonthFormat(int month) {

@@ -306,6 +306,9 @@ public class ScheduleFragment extends Fragment {
             cannotComeCheckbox.setTextColor(getResources().getColor(R.color.darkPurple));
             cannotComeCheckbox.setTextSize(16);
 
+            // Set the custom drawable for the checkbox
+            cannotComeCheckbox.setButtonDrawable(R.drawable.checkbox_selector);
+
             // Set the checkbox state based on the unavailableDays map
             cannotComeCheckbox.setChecked(unavailableDays.containsKey(dateStr) && unavailableDays.get(dateStr));
 
@@ -371,6 +374,7 @@ public class ScheduleFragment extends Fragment {
             layoutDays.addView(dayLayout);
         }
     }
+
     private void updateAvailableIntervals(String date, Spinner startHourSpinner, Spinner endHourSpinner) {
         String startHour = startHourSpinner.getSelectedItem().toString();
         String endHour = endHourSpinner.getSelectedItem().toString();

@@ -22,14 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp" />
 
-    <Button
-        android:id="@+id/btnPickDate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/darkprpl_rounded_bk"
-        android:textColor="@color/lightPurple"
-        android:text="Pick Date"
-        android:layout_marginBottom="8dp" />
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_appointments"
