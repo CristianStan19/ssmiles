@@ -48,14 +48,15 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
         void onRescheduleConfirmed(String newDate, String newTime);
     }
 
-    public DoctorRescheduleAppointmentsDialogFragment(OnRescheduleConfirmedListener listener) {
+    public DoctorRescheduleAppointmentsDialogFragment(String doctorName, OnRescheduleConfirmedListener listener) {
         this.listener = listener;
+        this.doctorName = doctorName;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_reschedule_appointment_dialog, container, false);
+        View view = inflater.inflate(R.layout.fragment_doctor_reschedule_appointments_dialog, container, false);
 
         spinnerDate = view.findViewById(R.id.spinnerDate);
         spinnerTime = view.findViewById(R.id.spinnerTime);
@@ -82,7 +83,8 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
         Calendar calendar = Calendar.getInstance();
         int month = calendar.get(Calendar.MONTH) + 1; // Calendar.MONTH is zero-based
         int year = calendar.get(Calendar.YEAR);
-
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
         // Construct the document ID
         String documentID = user.getUid() + "_" + String.format("%02d", month) + "-" + year;
 
@@ -158,7 +160,7 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
                         }
 
                         // Fetch schedule for the doctor
-                        schedulesRef.whereEqualTo("doctorID", doctorID)
+                        schedulesRef.whereEqualTo("doctorName", doctorID)
                                 .get()
                                 .addOnCompleteListener(scheduleTask -> {
                                     if (scheduleTask.isSuccessful() && !scheduleTask.getResult().isEmpty()) {

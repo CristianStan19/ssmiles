@@ -168,7 +168,7 @@ public class RescheduleAppointmentDialogFragment extends DialogFragment {
                         }
 
                         // Fetch schedule for the doctor
-                        schedulesRef.whereEqualTo("doctorID", doctorID)
+                        schedulesRef.whereEqualTo("doctorName", doctorID)
                                 .get()
                                 .addOnCompleteListener(scheduleTask -> {
                                     if (scheduleTask.isSuccessful() && !scheduleTask.getResult().isEmpty()) {

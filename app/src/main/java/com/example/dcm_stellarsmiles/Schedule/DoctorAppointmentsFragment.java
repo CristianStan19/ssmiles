@@ -21,6 +21,7 @@ import com.example.dcm_stellarsmiles.Adapter.DoctorAppointmentsAdapter;
 import com.example.dcm_stellarsmiles.Adapter.SpaceItemDecoration;
 import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
 import com.example.dcm_stellarsmiles.Constants.Constants;
+import com.example.dcm_stellarsmiles.Fragments.DoctorRescheduleAppointmentsDialogFragment;
 import com.example.dcm_stellarsmiles.Fragments.RescheduleAppointmentDialogFragment;
 import com.example.dcm_stellarsmiles.Intefaces.OnCancelAppointmentClickListener;
 import com.example.dcm_stellarsmiles.R;
@@ -280,7 +281,7 @@ public class DoctorAppointmentsFragment extends Fragment implements OnCancelAppo
     }
 
     public void onRescheduleAppointment(Appointment appointment) {
-        RescheduleAppointmentDialogFragment dialogFragment = new RescheduleAppointmentDialogFragment(
+        DoctorRescheduleAppointmentsDialogFragment dialogFragment = new DoctorRescheduleAppointmentsDialogFragment(
                 appointment.getDoctor(),
                 (newDate, newTime) -> {
                     appointment.setAppointmentDate(newDate);
@@ -288,7 +289,7 @@ public class DoctorAppointmentsFragment extends Fragment implements OnCancelAppo
                     updateAppointmentDate(appointment, newDate, newTime);
                 }
         );
-        dialogFragment.show(getChildFragmentManager(), "RescheduleAppointmentDialogFragment");
+        dialogFragment.show(getChildFragmentManager(), "DoctorRescheduleAppointmentsDialogFragment");
     }
 
     private void updateAppointmentDate(Appointment appointment, String newDate, String newTime) {
