@@ -58,10 +58,10 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
             Boolean smoker = document.getBoolean("smoker");
             Boolean drinker = document.getBoolean("drinker");
 
-            tvFullName.setText(fullName);
-            tvBirthDate.setText(birthDate);
-            tvSmoker.setText(smoker != null && smoker ? "Yes" : "No");
-            tvDrinker.setText(drinker != null && drinker ? "Yes" : "No");
+            tvFullName.setText("Patient Name: " + fullName);
+            tvBirthDate.setText("Patient Birth Date: " + birthDate);
+            tvSmoker.setText("Is Smoker: " + (smoker != null && smoker ? "Yes" : "No"));
+            tvDrinker.setText("Is Drinker: " + (drinker != null && drinker ? "Yes" : "No"));
         }
     }
 }
