@@ -70,6 +70,7 @@ public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppoin
             if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {
                 cancelListener.onCancelAppointment(appointment);
                 updateAppointmentStatus(appointment, "canceled");
+                Toast.makeText(v.getContext(), "Appointment has been canceled.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(v.getContext(), "Cannot cancel appointment. Status is not ongoing.", Toast.LENGTH_SHORT).show();
             }

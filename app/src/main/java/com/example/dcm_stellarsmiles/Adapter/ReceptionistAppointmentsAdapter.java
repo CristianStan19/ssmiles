@@ -64,6 +64,7 @@ public class ReceptionistAppointmentsAdapter extends RecyclerView.Adapter<Recept
         holder.btnCancelAppointment.setOnClickListener(v -> {
             if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {
                 listener.onCancelAppointment(appointment);
+                Toast.makeText(v.getContext(), "Appointment has been canceled.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(v.getContext(), "Cannot cancel appointment. Status is not ongoing.", Toast.LENGTH_SHORT).show();
             }

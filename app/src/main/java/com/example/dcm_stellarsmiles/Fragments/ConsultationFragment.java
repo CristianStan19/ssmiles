@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.dcm_stellarsmiles.Constants.Constants;
 import com.example.dcm_stellarsmiles.R;
@@ -46,6 +47,11 @@ public class ConsultationFragment extends Fragment {
                 int selectedPainLevelId = rgPainLevel.getCheckedRadioButtonId();
                 int selectedBleedingId = rgBleeding.getCheckedRadioButtonId();
                 int selectedSwellingId = rgSwelling.getCheckedRadioButtonId();
+
+                if (selectedPainLevelId == -1 || selectedBleedingId == -1 || selectedSwellingId == -1) {
+                    Toast.makeText(getContext(), "Please make sure all fields are selected", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 rbPainLevel = view.findViewById(selectedPainLevelId);
                 rbBleeding = view.findViewById(selectedBleedingId);

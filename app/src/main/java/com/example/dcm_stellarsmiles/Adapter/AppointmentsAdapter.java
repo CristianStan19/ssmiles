@@ -64,6 +64,7 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
         holder.tvAppCost.setText(String.format("%s %s", context.getString(R.string.appointment_cost), appointment.getCost()));
         holder.tvAppDuration.setText(String.format("%s %s", context.getString(R.string.duration), appointment.getDuration()));
         holder.tvAppHour.setText(String.format("%s %s", context.getString(R.string.hour), appointment.getTime()));
+        holder.tvType.setText(String.format("%s %s", context.getString(R.string.typeApp), appointment.getType()));
 
         // Show rating bar only for completed appointments
         if (appointment.getAppointmentStatus().equals("completed")) {
@@ -76,6 +77,7 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
         holder.btnCancelAppointment.setOnClickListener(v -> {
             if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {
                 listener.onCancelAppointment(appointment);
+                Toast.makeText(v.getContext(), "Appointment has been canceled.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(v.getContext(), "Cannot cancel appointment. Status is not ongoing.", Toast.LENGTH_SHORT).show();
             }
@@ -95,7 +97,7 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
     }
 
     public static class AppointmentViewHolder extends RecyclerView.ViewHolder {
-        TextView tvAppStatus, tvAppCost, tvAppDoctor, tvAppDate, tvAppDuration, tvAppHour;
+        TextView tvAppStatus, tvAppCost, tvAppDoctor, tvAppDate, tvAppDuration, tvAppHour, tvType;
         Button btnCancelAppointment;
         RatingBar ratingBar; // New rating bar
 
@@ -107,6 +109,7 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
             tvAppStatus = itemView.findViewById(R.id.tvAppStatus);
             tvAppDuration = itemView.findViewById(R.id.tvAppDuration);
             tvAppHour = itemView.findViewById(R.id.tvAppHour);
+            tvType = itemView.findViewById(R.id.tvType);
             btnCancelAppointment = itemView.findViewById(R.id.btnCancelAppointment);
             ratingBar = itemView.findViewById(R.id.ratingBar); // Initialize rating bar
         }

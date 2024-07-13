@@ -5,7 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/rounded_bk">
-
+    <TextView
+        android:id="@+id/tvType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:text="@string/appointment"
+        android:textColor="@color/darkPurple"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
     <TextView
         android:id="@+id/tvAppStatus"
         android:layout_width="wrap_content"
@@ -17,7 +28,7 @@
         android:textColor="@color/darkPurple"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/tvType" />
 
     <TextView
         android:id="@+id/tvAppDate"
