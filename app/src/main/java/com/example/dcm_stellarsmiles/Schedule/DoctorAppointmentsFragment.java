@@ -1,13 +1,11 @@
 package com.example.dcm_stellarsmiles.Schedule;
 
-import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -38,7 +36,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -50,13 +47,12 @@ public class DoctorAppointmentsFragment extends Fragment implements OnCancelAppo
     private List<Appointment> filteredAppointmentList;
     private FirebaseAuth auth;
     private FirebaseFirestore db;
-    private DatePickerDialog datePickerDialog;
-    private Spinner spinnerCustomers, spinnerStatuses, spinnerAppointmentTypes;
+    private Spinner spinnerCustomers, spinnerStatuses, spinnerAppointmentTypes, spinnerDates;
     private Button btnPickDate;
     private String selectedCustomer = "All Customers";
     private String selectedStatus = "All Statuses";
     private String selectedType = "All Types";
-    private String selectedDate;
+    private String selectedDate = "All Dates";
 
     public DoctorAppointmentsFragment() {
         // Required empty public constructor
@@ -87,10 +83,9 @@ public class DoctorAppointmentsFragment extends Fragment implements OnCancelAppo
         spinnerCustomers = view.findViewById(R.id.spinnerCustomers);
         spinnerStatuses = view.findViewById(R.id.spinnerStatuses);
         spinnerAppointmentTypes = view.findViewById(R.id.spinnerAppointmentTypes);
-
+        spinnerDates = view.findViewById(R.id.spinnerDates);
 
         setupSpinners();
-        setupDatePicker();
         fetchCustomerNames();
         fetchDoctorAppointments();
     }
@@ -160,12 +155,38 @@ public class DoctorAppointmentsFragment extends Fragment implements OnCancelAppo
                                 Appointment appointment = document.toObject(Appointment.class);
                                 appointmentList.add(appointment);
                             }
-                            filterAppointments();
+                            fetchDates();
                         } else {
                             Toast.makeText(getContext(), "Failed to fetch appointments", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+    }
+
+    private void fetchDates() {
+        List<String> dates = new ArrayList<>();
+        dates.add("All Dates");
+        for (Appointment appointment : appointmentList) {
+            String date = appointment.getAppointmentDate();
+            if (date != null && !dates.contains(date)) {
+                dates.add(date);
+            }
+        }
+        CustomSpinnerAdapter datesAdapter = new CustomSpinnerAdapter(getContext(), android.R.layout.simple_spinner_item, dates);
+        datesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerDates.setAdapter(datesAdapter);
+        spinnerDates.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedDate = parent.getItemAtPosition(position).toString();
+                filterAppointments();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedDate = "All Dates";
+            }
+        });
     }
 
     private void setupSpinners() {
@@ -227,56 +248,6 @@ public class DoctorAppointmentsFragment extends Fragment implements OnCancelAppo
         });
     }
 
-    private void setupDatePicker() {
-
-    }
-
-    private String getMonthFormat(int month) {
-        String monthAbbreviation;
-        switch (month) {
-            case 1:
-                monthAbbreviation = "JAN";
-                break;
-            case 2:
-                monthAbbreviation = "FEB";
-                break;
-            case 3:
-                monthAbbreviation = "MAR";
-                break;
-            case 4:
-                monthAbbreviation = "APR";
-                break;
-            case 5:
-                monthAbbreviation = "MAY";
-                break;
-            case 6:
-                monthAbbreviation = "JUN";
-                break;
-            case 7:
-                monthAbbreviation = "JUL";
-                break;
-            case 8:
-                monthAbbreviation = "AUG";
-                break;
-            case 9:
-                monthAbbreviation = "SEP";
-                break;
-            case 10:
-                monthAbbreviation = "OCT";
-                break;
-            case 11:
-                monthAbbreviation = "NOV";
-                break;
-            case 12:
-                monthAbbreviation = "DEC";
-                break;
-            default:
-                monthAbbreviation = "JAN";
-                break;
-        }
-        return monthAbbreviation;
-    }
-
     private void filterAppointments() {
         filteredAppointmentList.clear();
         for (Appointment appointment : appointmentList) {
@@ -290,16 +261,8 @@ public class DoctorAppointmentsFragment extends Fragment implements OnCancelAppo
             if (selectedType != null && !selectedType.equals("All Types") && !appointment.getType().equals(selectedType)) {
                 matches = false;
             }
-            if (selectedDate != null) {
-                try {
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM/yyyy");
-                    Date date = sdf.parse(selectedDate);
-                    Date appointmentDate = sdf.parse(appointment.getAppointmentDate());
-                    if (!appointmentDate.equals(date)) {
-                        matches = false;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+            if (selectedDate != null && !selectedDate.equals("All Dates")) {
+                if (!appointment.getAppointmentDate().equals(selectedDate)) {
                     matches = false;
                 }
             }
@@ -356,9 +319,5 @@ public class DoctorAppointmentsFragment extends Fragment implements OnCancelAppo
                         }
                     }
                 });
-    }
-
-    private String makeDateString(int dayOfMonth, int month, int year) {
-        return dayOfMonth + "/" + getMonthFormat(month) + "/" + year;
     }
 }

@@ -24,12 +24,17 @@
         android:layout_below="@id/spinnerStatuses"
         android:layout_margin="16dp" />
 
-
+    <Spinner
+        android:id="@+id/spinnerDates"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinnerAppointmentTypes"
+        android:layout_margin="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/appointmentsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/spinnerAppointmentTypes"
+        android:layout_below="@id/spinnerDates"
         android:padding="16dp" />
 </RelativeLayout>

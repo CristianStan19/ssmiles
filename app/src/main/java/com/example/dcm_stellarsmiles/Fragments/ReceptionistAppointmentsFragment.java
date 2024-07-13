@@ -1,13 +1,11 @@
 package com.example.dcm_stellarsmiles.Fragments;
 
-import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -33,7 +31,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -44,12 +41,12 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
     private ReceptionistAppointmentsAdapter adapter;
     private List<Appointment> appointmentList;
     private List<Appointment> filteredAppointmentList;
-    private Spinner spinnerCustomers, spinnerStatuses, spinnerAppointmentTypes;
+    private Spinner spinnerCustomers, spinnerStatuses, spinnerAppointmentTypes, spinnerDates;
     private Button btnPickDate;
     private String selectedCustomer = "All Customers";
     private String selectedStatus = "All Statuses";
     private String selectedType = "All Types";
-    private String selectedDate;
+    private String selectedDate = "All Dates";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -69,10 +66,9 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
         spinnerCustomers = view.findViewById(R.id.spinnerCustomers);
         spinnerStatuses = view.findViewById(R.id.spinnerStatuses);
         spinnerAppointmentTypes = view.findViewById(R.id.spinnerAppointmentTypes);
-
+        spinnerDates = view.findViewById(R.id.spinnerDates);
 
         setupSpinners();
-        setupDatePicker();
         fetchCustomerNames();
         fetchAppointments();
 
@@ -114,11 +110,37 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
                             Appointment appointment = document.toObject(Appointment.class);
                             appointmentList.add(appointment);
                         }
-                        filterAppointments();
+                        fetchDates();
                     } else {
                         Log.w("ReceptionistFragment", "Error getting documents.", task.getException());
                     }
                 });
+    }
+
+    private void fetchDates() {
+        List<String> dates = new ArrayList<>();
+        dates.add("All Dates");
+        for (Appointment appointment : appointmentList) {
+            String date = appointment.getAppointmentDate();
+            if (date != null && !dates.contains(date)) {
+                dates.add(date);
+            }
+        }
+        CustomSpinnerAdapter datesAdapter = new CustomSpinnerAdapter(getContext(), android.R.layout.simple_spinner_item, dates);
+        datesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerDates.setAdapter(datesAdapter);
+        spinnerDates.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedDate = parent.getItemAtPosition(position).toString();
+                filterAppointments();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedDate = "All Dates";
+            }
+        });
     }
 
     private void setupSpinners() {
@@ -180,58 +202,6 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
         });
     }
 
-    private void setupDatePicker() {
-
-    }
-
-
-
-    private String getMonthFormat(int month) {
-        String monthAbbreviation;
-        switch (month) {
-            case 1:
-                monthAbbreviation = "JAN";
-                break;
-            case 2:
-                monthAbbreviation = "FEB";
-                break;
-            case 3:
-                monthAbbreviation = "MAR";
-                break;
-            case 4:
-                monthAbbreviation = "APR";
-                break;
-            case 5:
-                monthAbbreviation = "MAY";
-                break;
-            case 6:
-                monthAbbreviation = "JUN";
-                break;
-            case 7:
-                monthAbbreviation = "JUL";
-                break;
-            case 8:
-                monthAbbreviation = "AUG";
-                break;
-            case 9:
-                monthAbbreviation = "SEP";
-                break;
-            case 10:
-                monthAbbreviation = "OCT";
-                break;
-            case 11:
-                monthAbbreviation = "NOV";
-                break;
-            case 12:
-                monthAbbreviation = "DEC";
-                break;
-            default:
-                monthAbbreviation = "JAN";
-                break;
-        }
-        return monthAbbreviation;
-    }
-
     private void filterAppointments() {
         filteredAppointmentList.clear();
         for (Appointment appointment : appointmentList) {
@@ -258,17 +228,9 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
                 }
             }
 
-            if (selectedDate != null) {
-                try {
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM/yyyy");
-                    Date date = sdf.parse(selectedDate);
-                    String appointmentDateStr = appointment.getAppointmentDate();
-                    Date appointmentDate = appointmentDateStr != null ? sdf.parse(appointmentDateStr) : null;
-                    if (appointmentDate == null || !appointmentDate.equals(date)) {
-                        matches = false;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+            if (selectedDate != null && !selectedDate.equals("All Dates")) {
+                String appointmentDateStr = appointment.getAppointmentDate();
+                if (appointmentDateStr == null || !appointmentDateStr.equals(selectedDate)) {
                     matches = false;
                 }
             }
@@ -279,7 +241,6 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
         }
         adapter.notifyDataSetChanged();
     }
-
 
     @Override
     public void onCancelAppointment(Appointment appointment) {
@@ -311,8 +272,6 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
                     }
                 });
     }
-
-
 
     @Override
     public void onCompleteAppointment(Appointment appointment) {
@@ -367,16 +326,6 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
                 });
     }
 
-    private void showDatePickerDialog(Appointment appointment) {
-        final Calendar calendar = Calendar.getInstance();
-        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
-                (view, year, month, dayOfMonth) -> {
-                    String newDate = makeDateString(dayOfMonth, month + 1, year);
-                    appointment.setAppointmentDate(newDate);
-                    updateAppointmentDate(appointment, newDate);
-                }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-        datePickerDialog.show();
-    }
 
     private void updateAppointmentDate(Appointment appointment, String newDate) {
         db.collection("appointments").document(appointment.getAppointmentId())
@@ -425,5 +374,50 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
     private String makeDateString(int dayOfMonth, int month, int year) {
         return dayOfMonth + "/" + getMonthFormat(month) + "/" + year;
     }
-}
 
+    private String getMonthFormat(int month) {
+        String monthAbbreviation;
+        switch (month) {
+            case 1:
+                monthAbbreviation = "JAN";
+                break;
+            case 2:
+                monthAbbreviation = "FEB";
+                break;
+            case 3:
+                monthAbbreviation = "MAR";
+                break;
+            case 4:
+                monthAbbreviation = "APR";
+                break;
+            case 5:
+                monthAbbreviation = "MAY";
+                break;
+            case 6:
+                monthAbbreviation = "JUN";
+                break;
+            case 7:
+                monthAbbreviation = "JUL";
+                break;
+            case 8:
+                monthAbbreviation = "AUG";
+                break;
+            case 9:
+                monthAbbreviation = "SEP";
+                break;
+            case 10:
+                monthAbbreviation = "OCT";
+                break;
+            case 11:
+                monthAbbreviation = "NOV";
+                break;
+            case 12:
+                monthAbbreviation = "DEC";
+                break;
+            default:
+                monthAbbreviation = "JAN";
+                break;
+        }
+        return monthAbbreviation;
+    }
+}

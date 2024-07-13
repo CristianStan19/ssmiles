@@ -314,6 +314,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
                                     dialog.dismiss();
+                                    Toast.makeText(dialog.getContext(), "Appointment Scheduled!", Toast.LENGTH_SHORT).show();
                                 }
                             });
 
