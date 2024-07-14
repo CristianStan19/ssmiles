@@ -64,7 +64,12 @@ public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppoin
         holder.tvAppStatus.setText("Status: " + appointment.getAppointmentStatus());
         holder.tvAppDuration.setText("Duration: " + appointment.getDuration());
         holder.tvAppHour.setText("Hour: " + appointment.getTime());
-        holder.ratingBar.setRating(appointment.getRating()); // Set the rating
+        if (appointment.getAppointmentStatus().equals("completed")) {
+            holder.ratingBar.setVisibility(View.VISIBLE);
+            holder.ratingBar.setRating(appointment.getRating());
+        } else {
+            holder.ratingBar.setVisibility(View.GONE);
+        }
 
         holder.btnCancelAppointment.setOnClickListener(v -> {
             if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {
