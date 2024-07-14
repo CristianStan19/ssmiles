@@ -446,8 +446,8 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         CollectionReference schedulesRef = db.collection("schedules");
 
         // Fetch appointments for the selected date and doctor
-        appointmentsRef.whereEqualTo("doctor", doctorName)
-                .whereEqualTo("appointmentDate", date)
+        appointmentsRef.
+                whereEqualTo("appointmentDate", date)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

@@ -149,7 +149,7 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
         CollectionReference schedulesRef = db.collection("schedules");
 
         // Fetch appointments for the selected date and doctor
-        appointmentsRef.whereEqualTo("doctor", doctorID)
+        appointmentsRef
                 .whereEqualTo("appointmentDate", date)
                 .get()
                 .addOnCompleteListener(task -> {
