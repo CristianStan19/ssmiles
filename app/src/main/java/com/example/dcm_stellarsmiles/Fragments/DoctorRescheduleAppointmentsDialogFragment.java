@@ -44,6 +44,7 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
     private FirebaseUser user;
     private String doctorName;
     private String patientName;
+    private int duration;
 
     private OnRescheduleConfirmedListener listener;
 
@@ -51,10 +52,11 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
         void onRescheduleConfirmed(String newDate, String newTime);
     }
 
-    public DoctorRescheduleAppointmentsDialogFragment(String patientName,String doctorName, OnRescheduleConfirmedListener listener) {
+    public DoctorRescheduleAppointmentsDialogFragment(int duration, String patientName,String doctorName, OnRescheduleConfirmedListener listener) {
         this.listener = listener;
         this.doctorName = doctorName;
         this.patientName = patientName;
+        this.duration = duration;
     }
 
     @Nullable
@@ -173,6 +175,9 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
 
                                 // Remove slots that overlap with existing appointments
                                 availableTimeSlots = filterOverlappingSlots(availableTimeSlots, bookedAppointments);
+
+                                // Remove slots that exceed 18:00
+                                availableTimeSlots = filterExceedingSlots(availableTimeSlots, duration, 18, 0);
                             }
                         }
 
@@ -192,6 +197,28 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
             }
         });
     }
+
+    private List<String> filterExceedingSlots(List<String> availableTimeSlots, int appointmentDuration, int endHour, int endMinute) {
+        List<String> filteredSlots = new ArrayList<>();
+        int endInMinutes = endHour * 60 + endMinute;
+        for (String slot : availableTimeSlots) {
+            if (!exceedsEndTime(slot, appointmentDuration, endInMinutes)) {
+                filteredSlots.add(slot);
+            }
+        }
+        return filteredSlots;
+    }
+
+    private boolean exceedsEndTime(String slot, int appointmentDuration, int endInMinutes) {
+        int slotHour = Integer.parseInt(slot.split(":")[0]);
+        int slotMinute = Integer.parseInt(slot.split(":")[1]);
+
+        int slotStartInMinutes = slotHour * 60 + slotMinute;
+        int slotEndInMinutes = slotStartInMinutes + appointmentDuration;
+
+        return slotEndInMinutes > endInMinutes;
+    }
+
     private List<String> filterOverlappingSlots(List<String> availableTimeSlots, List<Appointment> bookedAppointments) {
         List<String> filteredSlots = new ArrayList<>(availableTimeSlots);
 

@@ -282,7 +282,7 @@ public class DoctorAppointmentsFragment extends Fragment implements OnCancelAppo
 
     public void onRescheduleAppointment(Appointment appointment) {
         DoctorRescheduleAppointmentsDialogFragment dialogFragment = new DoctorRescheduleAppointmentsDialogFragment(
-                appointment.getPatientName(),appointment.getDoctor(),
+                appointment.getDuration(), appointment.getPatientName(),appointment.getDoctor(),
                 (newDate, newTime) -> {
                     appointment.setAppointmentDate(newDate);
                     appointment.setTime(newTime);

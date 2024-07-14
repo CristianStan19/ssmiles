@@ -498,6 +498,10 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
 
                                                 // Filter out overlapping slots
                                                 availableTimeSlots = filterOverlappingSlots(availableTimeSlots, bookedAppointments);
+
+                                                // Filter out slots that exceed 18:00
+                                                int appointmentDuration = getSelectedAppointmentDuration();
+                                                availableTimeSlots = filterExceedingSlots(availableTimeSlots, appointmentDuration, 18, 0);
                                             }
                                         }
 
@@ -518,6 +522,32 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 });
     }
 
+    private int getSelectedAppointmentDuration() {
+        String type = consultationSpinner.getSelectedItem() != null ? consultationSpinner.getSelectedItem().toString() : "";
+        return Constants.APPOINTMENT_DURATIONS.getOrDefault(type, 0);
+    }
+
+    private List<String> filterExceedingSlots(List<String> availableTimeSlots, int appointmentDuration, int endHour, int endMinute) {
+        List<String> filteredSlots = new ArrayList<>();
+        int endInMinutes = endHour * 60 + endMinute;
+        for (String slot : availableTimeSlots) {
+            if (!exceedsEndTime(slot, appointmentDuration, endInMinutes)) {
+                filteredSlots.add(slot);
+            }
+        }
+        return filteredSlots;
+    }
+
+    private boolean exceedsEndTime(String slot, int appointmentDuration, int endInMinutes) {
+        int slotHour = Integer.parseInt(slot.split(":")[0]);
+        int slotMinute = Integer.parseInt(slot.split(":")[1]);
+
+        int slotStartInMinutes = slotHour * 60 + slotMinute;
+        int slotEndInMinutes = slotStartInMinutes + appointmentDuration;
+
+        return slotEndInMinutes > endInMinutes;
+    }
+
     private List<String> filterOverlappingSlots(List<String> availableTimeSlots, List<Appointment> bookedAppointments) {
         List<String> filteredSlots = new ArrayList<>(availableTimeSlots);
 
@@ -534,7 +564,6 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
 
         return filteredSlots;
     }
-
 
     private List<String> generateTimeSlotsFromIntervals(List<String> intervals) {
         List<String> timeSlots = new ArrayList<>();
@@ -573,4 +602,6 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
 
         return (slotStartMinutes < appointmentEndMinutes && slotEndMinutes > appointmentStartMinutes);
     }
+
+
 }
