@@ -475,22 +475,12 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<String> bookedDoctorTimeSlots = new ArrayList<>();
-                        List<String> bookedPatientTimeSlots = new ArrayList<>();
+                        List<Appointment> bookedAppointments = new ArrayList<>();
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            String appointmentTime = document.getString("time");
-                            String appointmentStatus = document.getString("appointmentStatus");
-                            String appointmentDoctor = document.getString("doctor");
-                            String appointmentPatient = document.getString("patientName");
-
-                            if (!appointmentStatus.equals(Constants.APP_CANCELED)) {
-                                if (appointmentDoctor.equals(doctorName)) {
-                                    bookedDoctorTimeSlots.add(appointmentTime);
-                                }
-                                if (appointmentPatient.equals(patientName)) {
-                                    bookedPatientTimeSlots.add(appointmentTime);
-                                }
+                            Appointment appointment = document.toObject(Appointment.class);
+                            if (!appointment.getAppointmentStatus().equals(Constants.APP_CANCELED)) {
+                                bookedAppointments.add(appointment);
                             }
                         }
 
@@ -505,8 +495,9 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                                             if (schedule.getDays().containsKey(date)) {
                                                 List<String> intervals = schedule.getDays().get(date);
                                                 availableTimeSlots = generateTimeSlotsFromIntervals(intervals);
-                                                availableTimeSlots.removeAll(bookedDoctorTimeSlots);
-                                                availableTimeSlots.removeAll(bookedPatientTimeSlots);
+
+                                                // Filter out overlapping slots
+                                                availableTimeSlots = filterOverlappingSlots(availableTimeSlots, bookedAppointments);
                                             }
                                         }
 
@@ -526,6 +517,24 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                     }
                 });
     }
+
+    private List<String> filterOverlappingSlots(List<String> availableTimeSlots, List<Appointment> bookedAppointments) {
+        List<String> filteredSlots = new ArrayList<>(availableTimeSlots);
+
+        for (Appointment appointment : bookedAppointments) {
+            String appointmentTime = appointment.getTime();
+            int appointmentDuration = appointment.getDuration();
+
+            for (String slot : new ArrayList<>(filteredSlots)) {
+                if (isOverlapping(slot, appointmentTime, appointmentDuration)) {
+                    filteredSlots.remove(slot);
+                }
+            }
+        }
+
+        return filteredSlots;
+    }
+
 
     private List<String> generateTimeSlotsFromIntervals(List<String> intervals) {
         List<String> timeSlots = new ArrayList<>();

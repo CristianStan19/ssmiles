@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.dcm_stellarsmiles.Adapter.CustomSpinnerAdapter;
+import com.example.dcm_stellarsmiles.Classes.Appointment.Appointment;
 import com.example.dcm_stellarsmiles.Classes.Schedule.Schedule;
 import com.example.dcm_stellarsmiles.Constants.Constants;
 import com.example.dcm_stellarsmiles.R;
@@ -158,66 +159,85 @@ public class RescheduleAppointmentDialogFragment extends DialogFragment {
         CollectionReference appointmentsRef = db.collection("appointments");
         CollectionReference schedulesRef = db.collection("schedules");
 
-        // Fetch appointments for the selected date and doctor
-        appointmentsRef
-                .whereEqualTo("appointmentDate", date)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<String> bookedDoctorTimeSlots = new ArrayList<>();
-                        List<String> bookedPatientTimeSlots = new ArrayList<>();
+        appointmentsRef.whereEqualTo("appointmentDate", date).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<Appointment> bookedAppointments = new ArrayList<>();
 
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            String appointmentTime = document.getString("time");
-                            String appointmentStatus = document.getString("appointmentStatus");
-                            String appointmentDoctor = document.getString("doctor");
-                            String appointmentPatient = document.getString("patientName");
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    Appointment appointment = document.toObject(Appointment.class);
+                    if (!appointment.getAppointmentStatus().equals(Constants.APP_CANCELED)) {
+                        bookedAppointments.add(appointment);
+                    }
+                }
 
-                            if (!appointmentStatus.equals(Constants.APP_CANCELED)) {
-                                if (appointmentDoctor.equals(doctorID)) {
-                                    bookedDoctorTimeSlots.add(appointmentTime);
-                                }
-                                if (appointmentPatient.equals(patientName)) {
-                                    bookedPatientTimeSlots.add(appointmentTime);
-                                }
+                schedulesRef.whereEqualTo("doctorName", doctorID).get().addOnCompleteListener(scheduleTask -> {
+                    if (scheduleTask.isSuccessful() && !scheduleTask.getResult().isEmpty()) {
+                        List<String> availableTimeSlots = new ArrayList<>();
+                        for (QueryDocumentSnapshot scheduleDoc : scheduleTask.getResult()) {
+                            Schedule schedule = scheduleDoc.toObject(Schedule.class);
+                            if (schedule.getDays().containsKey(date)) {
+                                List<String> intervals = schedule.getDays().get(date);
+                                availableTimeSlots = generateTimeSlotsFromIntervals(intervals);
+
+                                // Remove slots that overlap with existing appointments
+                                availableTimeSlots = filterOverlappingSlots(availableTimeSlots, bookedAppointments);
                             }
                         }
 
-                        // Fetch schedule for the doctor
-                        schedulesRef.whereEqualTo("doctorName", doctorID)
-                                .get()
-                                .addOnCompleteListener(scheduleTask -> {
-                                    if (scheduleTask.isSuccessful() && !scheduleTask.getResult().isEmpty()) {
-                                        List<String> availableTimeSlots = new ArrayList<>();
-                                        for (QueryDocumentSnapshot scheduleDoc : scheduleTask.getResult()) {
-                                            Schedule schedule = scheduleDoc.toObject(Schedule.class);
-                                            if (schedule.getDays().containsKey(date)) {
-                                                List<String> intervals = schedule.getDays().get(date);
-                                                availableTimeSlots = generateTimeSlotsFromIntervals(intervals);
+                        if (availableTimeSlots.isEmpty()) {
+                            Toast.makeText(getContext(), "No available time slots for the selected date.", Toast.LENGTH_SHORT).show();
+                        }
 
-                                                // Remove booked time slots for the doctor and patient
-                                                availableTimeSlots.removeAll(bookedDoctorTimeSlots);
-                                                availableTimeSlots.removeAll(bookedPatientTimeSlots);
-                                            }
-                                        }
-
-                                        if (availableTimeSlots.isEmpty()) {
-                                            Toast.makeText(getContext(), "No available time slots for the selected date.", Toast.LENGTH_SHORT).show();
-                                        }
-
-                                        CustomSpinnerAdapter timeAdapter = new CustomSpinnerAdapter(getContext(), android.R.layout.simple_spinner_dropdown_item, availableTimeSlots);
-                                        timeAdapter.setDropDownViewResource(R.layout.spinner_list_color);
-                                        spinnerTime.setAdapter(timeAdapter);
-                                    } else {
-                                        Log.w("RescheduleDialog", "No schedule found for doctor: " + doctorID);
-                                    }
-                                });
+                        CustomSpinnerAdapter timeAdapter = new CustomSpinnerAdapter(getContext(), android.R.layout.simple_spinner_dropdown_item, availableTimeSlots);
+                        timeAdapter.setDropDownViewResource(R.layout.spinner_list_color);
+                        spinnerTime.setAdapter(timeAdapter);
                     } else {
-                        Log.w("RescheduleDialog", "Error getting appointments: ", task.getException());
+                        Log.w("RescheduleDialog", "No schedule found for doctor: " + doctorID);
                     }
                 });
-
+            } else {
+                Log.w("RescheduleDialog", "Error getting appointments: ", task.getException());
+            }
+        });
     }
+    private List<String> filterOverlappingSlots(List<String> availableTimeSlots, List<Appointment> bookedAppointments) {
+        List<String> filteredSlots = new ArrayList<>(availableTimeSlots);
+
+        for (Appointment appointment : bookedAppointments) {
+            String appointmentStartTime = appointment.getTime();
+            int appointmentDuration = appointment.getDuration();
+            String appointmentEndTime = calculateEndTime(appointmentStartTime, appointmentDuration);
+
+            for (String slot : new ArrayList<>(filteredSlots)) {
+                String slotEndTime = calculateEndTime(slot, 30); // Assuming each slot is 30 minutes
+
+                if (timesOverlap(slot, slotEndTime, appointmentStartTime, appointmentEndTime)) {
+                    filteredSlots.remove(slot);
+                }
+            }
+        }
+
+        return filteredSlots;
+    }
+
+    private boolean timesOverlap(String slotStart, String slotEnd, String appointmentStart, String appointmentEnd) {
+        return (slotStart.compareTo(appointmentEnd) < 0 && slotEnd.compareTo(appointmentStart) > 0);
+    }
+
+    private String calculateEndTime(String startTime, int duration) {
+        String[] timeParts = startTime.split(":");
+        int hour = Integer.parseInt(timeParts[0]);
+        int minute = Integer.parseInt(timeParts[1]);
+
+        minute += duration;
+        while (minute >= 60) {
+            minute -= 60;
+            hour += 1;
+        }
+
+        return String.format("%02d:%02d", hour, minute);
+    }
+
 
     private List<String> generateTimeSlotsFromIntervals(List<String> intervals) {
         List<String> timeSlots = new ArrayList<>();
