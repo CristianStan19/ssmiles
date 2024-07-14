@@ -53,13 +53,14 @@ public class ReceptionistAppointmentsAdapter extends RecyclerView.Adapter<Recept
         Appointment appointment = appointmentList.get(position);
         Context context = holder.itemView.getContext();
 
-        holder.tvAppDate.setText(appointment.getAppointmentDate());
-        holder.tvAppType.setText(appointment.getType());
-        holder.tvAppCost.setText(String.valueOf(appointment.getCost()));
-        holder.tvAppPatient.setText(appointment.getPatientName());
+        holder.tvAppDate.setText("Date: " +appointment.getAppointmentDate());
+        holder.tvAppType.setText("Type: " + appointment.getType());
+        holder.tvAppCost.setText("Cost: " + String.valueOf(appointment.getCost()));
+        holder.tvAppPatient.setText("Patient: " + appointment.getPatientName());
         holder.tvAppStatus.setText("Status: " + appointment.getAppointmentStatus());
         holder.tvAppDuration.setText("Duration: " + appointment.getDuration());
         holder.tvAppHour.setText("Hour: " + appointment.getTime());
+        holder.tvAppDoctor.setText("Doctor: "+appointment.getDoctor());
 
         holder.btnCancelAppointment.setOnClickListener(v -> {
             if (appointment.getAppointmentStatus().equals("ongoing") || appointment.getAppointmentStatus().equals("rescheduled")) {
@@ -93,7 +94,7 @@ public class ReceptionistAppointmentsAdapter extends RecyclerView.Adapter<Recept
     }
 
     public static class AppointmentViewHolder extends RecyclerView.ViewHolder {
-        TextView tvAppPatient, tvAppCost, tvAppType, tvAppDate, tvAppStatus, tvAppDuration, tvAppHour;
+        TextView tvAppPatient, tvAppCost, tvAppType, tvAppDate, tvAppStatus, tvAppDuration, tvAppHour, tvAppDoctor;
         Button btnCancelAppointment, btnRescheduleAppointment, btnCompleteAppointment;
 
         public AppointmentViewHolder(@NonNull View itemView) {
@@ -108,6 +109,7 @@ public class ReceptionistAppointmentsAdapter extends RecyclerView.Adapter<Recept
             btnCancelAppointment = itemView.findViewById(R.id.rec_button_cancel);
             btnRescheduleAppointment = itemView.findViewById(R.id.rec_button_reschedule);
             btnCompleteAppointment = itemView.findViewById(R.id.rec_button_complete);
+            tvAppDoctor = itemView.findViewById(R.id.rec_text_view_doctor);
         }
     }
 }

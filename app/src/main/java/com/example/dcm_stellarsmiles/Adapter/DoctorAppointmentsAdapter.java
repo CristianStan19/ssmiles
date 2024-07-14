@@ -57,10 +57,10 @@ public class DoctorAppointmentsAdapter extends RecyclerView.Adapter<DoctorAppoin
         Appointment appointment = appointmentList.get(position);
         Context context = holder.itemView.getContext();
 
-        holder.tvAppDate.setText(appointment.getAppointmentDate());
-        holder.tvAppType.setText(appointment.getType());
-        holder.tvAppCost.setText(String.valueOf(appointment.getCost()));
-        holder.tvAppPatient.setText(appointment.getPatientName());
+        holder.tvAppDate.setText("Date: "+appointment.getAppointmentDate());
+        holder.tvAppType.setText("Type: " + appointment.getType());
+        holder.tvAppCost.setText("Cost: " + String.valueOf(appointment.getCost()));
+        holder.tvAppPatient.setText("Patient: " + appointment.getPatientName());
         holder.tvAppStatus.setText("Status: " + appointment.getAppointmentStatus());
         holder.tvAppDuration.setText("Duration: " + appointment.getDuration());
         holder.tvAppHour.setText("Hour: " + appointment.getTime());

@@ -198,10 +198,12 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         consultationSpinner = dialog.findViewById(R.id.consultationSpinner);
         CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(this, android.R.layout.simple_spinner_item, new ArrayList<>(Constants.APPOINTMENT_COSTS.keySet()));
+        adapter.insert("Select a consultation", 0);
         adapter.setDropDownViewResource(R.layout.spinner_list_color);
         consultationSpinner.setAdapter(adapter);
         consultationDoctor = dialog.findViewById(R.id.consultationDoctor);
         timeIntervalSpinner = dialog.findViewById(R.id.timeIntervalSpinner);
+        consultationSpinner.setSelection(0);
         CollectionReference doctorsRef = db.collection("doctors");
 
         consultationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -287,12 +289,27 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 db.runTransaction(transaction -> {
                     DocumentSnapshot snapshot = transaction.get(customerDocRef);
                     Customer customer = snapshot.toObject(Customer.class);
-                    String appointmentDate = spinnerDate.getSelectedItem().toString();
-                    String type = consultationSpinner.getSelectedItem().toString();
-                    String doctor = consultationDoctor.getSelectedItem().toString();
-                    String time = timeIntervalSpinner.getSelectedItem().toString();
 
-                    int cost = Integer.parseInt(textCost.getText().toString());
+                    // Get the values from the spinners and text fields
+                    String appointmentDate = spinnerDate.getSelectedItem() != null ? spinnerDate.getSelectedItem().toString() : "";
+                    String type = consultationSpinner.getSelectedItem() != null ? consultationSpinner.getSelectedItem().toString() : "";
+                    String doctor = consultationDoctor.getSelectedItem() != null ? consultationDoctor.getSelectedItem().toString() : "";
+                    String time = timeIntervalSpinner.getSelectedItem() != null ? timeIntervalSpinner.getSelectedItem().toString() : "";
+                    String costText = textCost.getText().toString();
+
+                    // Check for empty or null values
+                    if (appointmentDate.isEmpty() || type.isEmpty() || doctor.isEmpty() || time.isEmpty() || costText.isEmpty() || "Select a consultation".equals(type)) {
+                        Toast.makeText(dialog.getContext(), "All fields must be filled!", Toast.LENGTH_SHORT).show();
+                        return null;
+                    }
+
+                    int cost;
+                    try {
+                        cost = Integer.parseInt(costText);
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(dialog.getContext(), "Invalid cost value!", Toast.LENGTH_SHORT).show();
+                        return null;
+                    }
 
                     if (customer.getVisits() >= Constants.LOYALITY_REQUIRMENT) {
                         cost = (int) (cost - cost * Constants.LOYALITY_DISCOUNT);
@@ -324,8 +341,11 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                         dialog.dismiss();
                     } else {
                         // Handle error during update (optional)
+                        Toast.makeText(dialog.getContext(), "Error scheduling appointment. Please try again.", Toast.LENGTH_SHORT).show();
                     }
                 });
+            } else {
+                Toast.makeText(dialog.getContext(), "User not logged in!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -434,7 +454,8 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                         List<String> bookedTimeSlots = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String appointmentTime = document.getString("time");
-                            bookedTimeSlots.add(appointmentTime);
+                            if(!document.getString("appointmentStatus").equals(Constants.APP_CANCELED))
+                            {bookedTimeSlots.add(appointmentTime);}
                         }
 
                         // Fetch schedule for the doctor

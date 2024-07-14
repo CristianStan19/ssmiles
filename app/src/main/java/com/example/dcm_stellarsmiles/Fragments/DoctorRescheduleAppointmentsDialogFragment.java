@@ -16,6 +16,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.dcm_stellarsmiles.Adapter.CustomSpinnerAdapter;
 import com.example.dcm_stellarsmiles.Classes.Schedule.Schedule;
+import com.example.dcm_stellarsmiles.Constants.Constants;
 import com.example.dcm_stellarsmiles.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -156,7 +157,8 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
                         List<String> bookedTimeSlots = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String appointmentTime = document.getString("time");
-                            bookedTimeSlots.add(appointmentTime);
+                            if(!document.getString("appointmentStatus").equals(Constants.APP_CANCELED))
+                            {bookedTimeSlots.add(appointmentTime);}
                         }
 
                         // Fetch schedule for the doctor
