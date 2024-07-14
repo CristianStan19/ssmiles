@@ -42,6 +42,7 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
     private FirebaseAuth auth;
     private FirebaseUser user;
     private String doctorName;
+    private String patientName;
 
     private OnRescheduleConfirmedListener listener;
 
@@ -49,9 +50,10 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
         void onRescheduleConfirmed(String newDate, String newTime);
     }
 
-    public DoctorRescheduleAppointmentsDialogFragment(String doctorName, OnRescheduleConfirmedListener listener) {
+    public DoctorRescheduleAppointmentsDialogFragment(String patientName,String doctorName, OnRescheduleConfirmedListener listener) {
         this.listener = listener;
         this.doctorName = doctorName;
+        this.patientName = patientName;
     }
 
     @Nullable
@@ -134,7 +136,7 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedDate = spinnerDate.getSelectedItem().toString();
-                updateAvailableTimeSlots(doctorName, selectedDate);
+                updateAvailableTimeSlots(doctorName, selectedDate, patientName);
             }
 
             @Override
@@ -144,7 +146,7 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
         });
     }
 
-    private void updateAvailableTimeSlots(String doctorID, String date) {
+    private void updateAvailableTimeSlots(String doctorID, String date, String patientName) {
         CollectionReference appointmentsRef = db.collection("appointments");
         CollectionReference schedulesRef = db.collection("schedules");
 
@@ -154,11 +156,23 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<String> bookedTimeSlots = new ArrayList<>();
+                        List<String> bookedDoctorTimeSlots = new ArrayList<>();
+                        List<String> bookedPatientTimeSlots = new ArrayList<>();
+
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String appointmentTime = document.getString("time");
-                            if(!document.getString("appointmentStatus").equals(Constants.APP_CANCELED) && document.getString("doctor").equals(doctorName))
-                            {bookedTimeSlots.add(appointmentTime);}
+                            String appointmentStatus = document.getString("appointmentStatus");
+                            String appointmentDoctor = document.getString("doctor");
+                            String appointmentPatient = document.getString("patientName");
+
+                            if (!appointmentStatus.equals(Constants.APP_CANCELED)) {
+                                if (appointmentDoctor.equals(doctorID)) {
+                                    bookedDoctorTimeSlots.add(appointmentTime);
+                                }
+                                if (appointmentPatient.equals(patientName)) {
+                                    bookedPatientTimeSlots.add(appointmentTime);
+                                }
+                            }
                         }
 
                         // Fetch schedule for the doctor
@@ -172,7 +186,8 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
                                             if (schedule.getDays().containsKey(date)) {
                                                 List<String> intervals = schedule.getDays().get(date);
                                                 availableTimeSlots = generateTimeSlotsFromIntervals(intervals);
-                                                availableTimeSlots.removeAll(bookedTimeSlots);
+                                                availableTimeSlots.removeAll(bookedDoctorTimeSlots);
+                                                availableTimeSlots.removeAll(bookedPatientTimeSlots);
                                             }
                                         }
 

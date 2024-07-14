@@ -250,7 +250,7 @@ public class ReceptionistAppointmentsFragment extends Fragment implements OnAppo
     @Override
     public void onRescheduleAppointment(Appointment appointment) {
         RescheduleAppointmentDialogFragment dialogFragment = new RescheduleAppointmentDialogFragment(
-                appointment.getDoctor(),
+                appointment.getPatientName(), appointment.getDoctor(),
                 (newDate, newTime) -> {
                     appointment.setAppointmentDate(newDate);
                     appointment.setTime(newTime);

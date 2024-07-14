@@ -256,7 +256,31 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                                         @Override
                                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                                             String selectedDoctor = consultationDoctor.getSelectedItem().toString();
-                                            fetchDoctorIDAndSchedules(selectedDoctor);
+                                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                            String customerID = user != null ? user.getUid() : null;
+
+                                            if (customerID != null) {
+                                                DocumentReference customerDocRef = db.collection("customers").document(customerID);
+
+                                                // Fetch the customer's full name
+                                                customerDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                        if (task.isSuccessful()) {
+                                                            DocumentSnapshot document = task.getResult();
+                                                            if (document.exists()) {
+                                                                String fullName = document.getString("fullName");
+                                                                fetchDoctorIDAndSchedules(selectedDoctor, fullName);
+                                                            } else {
+
+                                                            }
+                                                        } else {
+
+                                                        }
+                                                    }
+                                                });
+                                            } else {
+                                            }
                                         }
 
                                         @Override
@@ -356,7 +380,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         dialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
-    private void fetchDoctorIDAndSchedules(String doctorName) {
+    private void fetchDoctorIDAndSchedules(String doctorName, String patientName) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("doctors").whereEqualTo("name", doctorName).get()
                 .addOnCompleteListener(task -> {
@@ -364,7 +388,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                         DocumentSnapshot doctorDoc = task.getResult().getDocuments().get(0);
                         String doctorID = doctorDoc.getString("employeeID");
                         if (doctorID != null) {
-                            fetchSchedulesForDoctor(doctorID);
+                            fetchSchedulesForDoctor(doctorID, patientName);
                         }
                     } else {
                         Log.w("Dashboard", "No doctor found or error getting doctor: ", task.getException());
@@ -372,7 +396,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 });
     }
 
-    private void fetchSchedulesForDoctor(String doctorID) {
+    private void fetchSchedulesForDoctor(String doctorID, String patientName) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference schedulesRef = db.collection("schedules");
 
@@ -392,7 +416,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                             Schedule schedule = document.toObject(Schedule.class);
                             List<Schedule> schedules = new ArrayList<>();
                             schedules.add(schedule);
-                            setAvailableDatesAndTimes(schedules);
+                            setAvailableDatesAndTimes(schedules, patientName);
                         } else {
                             Log.w("Dashboard", "No schedule available for document ID: " + documentID);
                         }
@@ -403,7 +427,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
     }
 
 
-    private void setAvailableDatesAndTimes(List<Schedule> schedules) {
+    private void setAvailableDatesAndTimes(List<Schedule> schedules, String patientName) {
         List<String> availableDays = new ArrayList<>();
 
         for (Schedule schedule : schedules) {
@@ -430,7 +454,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedDate = spinnerDate.getSelectedItem().toString();
-                updateAvailableTimeSlots(consultationDoctor.getSelectedItem().toString(), selectedDate);
+                updateAvailableTimeSlots(consultationDoctor.getSelectedItem().toString(), selectedDate, patientName);
             }
 
             @Override
@@ -440,22 +464,34 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         });
     }
 
-    private void updateAvailableTimeSlots(String doctorName, String date) {
+    private void updateAvailableTimeSlots(String doctorName, String date, String patientName) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference appointmentsRef = db.collection("appointments");
         CollectionReference schedulesRef = db.collection("schedules");
 
         // Fetch appointments for the selected date and doctor
-        appointmentsRef.
-                whereEqualTo("appointmentDate", date)
+        appointmentsRef
+                .whereEqualTo("appointmentDate", date)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<String> bookedTimeSlots = new ArrayList<>();
+                        List<String> bookedDoctorTimeSlots = new ArrayList<>();
+                        List<String> bookedPatientTimeSlots = new ArrayList<>();
+
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String appointmentTime = document.getString("time");
-                            if(!document.getString("appointmentStatus").equals(Constants.APP_CANCELED) && document.getString("doctor").equals(doctorName))
-                            {bookedTimeSlots.add(appointmentTime);}
+                            String appointmentStatus = document.getString("appointmentStatus");
+                            String appointmentDoctor = document.getString("doctor");
+                            String appointmentPatient = document.getString("patientName");
+
+                            if (!appointmentStatus.equals(Constants.APP_CANCELED)) {
+                                if (appointmentDoctor.equals(doctorName)) {
+                                    bookedDoctorTimeSlots.add(appointmentTime);
+                                }
+                                if (appointmentPatient.equals(patientName)) {
+                                    bookedPatientTimeSlots.add(appointmentTime);
+                                }
+                            }
                         }
 
                         // Fetch schedule for the doctor
@@ -469,7 +505,8 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                                             if (schedule.getDays().containsKey(date)) {
                                                 List<String> intervals = schedule.getDays().get(date);
                                                 availableTimeSlots = generateTimeSlotsFromIntervals(intervals);
-                                                availableTimeSlots.removeAll(bookedTimeSlots);
+                                                availableTimeSlots.removeAll(bookedDoctorTimeSlots);
+                                                availableTimeSlots.removeAll(bookedPatientTimeSlots);
                                             }
                                         }
 
