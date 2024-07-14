@@ -157,7 +157,7 @@ public class DoctorRescheduleAppointmentsDialogFragment extends DialogFragment {
                         List<String> bookedTimeSlots = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String appointmentTime = document.getString("time");
-                            if(!document.getString("appointmentStatus").equals(Constants.APP_CANCELED))
+                            if(!document.getString("appointmentStatus").equals(Constants.APP_CANCELED) && document.getString("doctor").equals(doctorName))
                             {bookedTimeSlots.add(appointmentTime);}
                         }
 
